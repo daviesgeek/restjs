@@ -1,0 +1,14 @@
+{
+  "name": "restjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "rest.js",
+  "scripts": {},
+  "author": "Matthew Davies <matthew@daviesgeek.com> (http://daviesgeek.com)",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "sinon": "^1.17.4"
+  }
+}
