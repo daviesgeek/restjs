@@ -5,6 +5,7 @@
   "main": "rest.js",
   "scripts": {
     "build": "node_modules/.bin/babel rest.js -d dist --presets es2015",
+    "test": "node_modules/.bin/karma start test/config.js --single-run=true",
     "unit": "node_modules/.bin/karma start test/config.js"
   },
   "author": "Matthew Davies <matthew@daviesgeek.com> (http://daviesgeek.com)",

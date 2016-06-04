@@ -44,7 +44,7 @@ module.exports = function (config) {
       'karma-babel-preprocessor'
     ],
 
-    singleRun: true
+    singleRun: false
 
   })
 }
