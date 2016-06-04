@@ -31,7 +31,7 @@ describe('RestJS', function () {
     shouldBeRestified(user, 'users', false)
   })
 
-  it('should make a get request', function (done) {
+  it('should make a getList request', function (done) {
     server.respondWith(function (request) {
       expect(request.method).to.equal('GET')
       expect(request.url).to.equal('http://server.com/users')
@@ -107,7 +107,7 @@ describe('RestJS', function () {
       })
 
       user.patch({first_name: "John"}).then(function (data) {
-        expect(data).to.deep.equal(user)
+        expect(JSON.stringify(data)).to.equal(JSON.stringify({first_name: "John"}))
         done()
       })
 
@@ -125,7 +125,7 @@ describe('RestJS', function () {
       })
 
       user.patch({first_name: "John"}, {with: 'all'}).then(function (data) {
-        expect(data).to.deep.equal(user)
+        expect(JSON.stringify(data)).to.equal(JSON.stringify({first_name: "John"}))
         done()
       })
 
@@ -143,7 +143,7 @@ describe('RestJS', function () {
       })
 
       user.patch('id', 'first_name', 'last_name').then(function (data) {
-        expect(data).to.deep.equal(user)
+        expect(JSON.stringify(data)).to.equal(JSON.stringify({id: 1, first_name: "John", last_name: "Smith"}))
         done()
       })
 
@@ -161,7 +161,7 @@ describe('RestJS', function () {
       })
 
       user.patch('id', 'first_name', 'last_name', {with: 'all'}).then(function (data) {
-        expect(data).to.deep.equal(user)
+        expect(JSON.stringify(data)).to.equal(JSON.stringify(user))
         done()
       })
 
@@ -187,6 +187,36 @@ describe('RestJS', function () {
     })
   })
 
+  it('should add factory methods', function () {
+    var model = Rest.factory('users', {
+      getUserTypes: function () {
+        return ['admin', 'standard']
+      }
+    })
+
+    expect(model)
+  })
+
+  it('should add element methods', function () {
+    var model = Rest.factory('users', null, {
+      types: ['admin', 'standard'],
+      setRole: function(type) {
+        if (this.types.indexOf(type) != -1)
+          this.role = type
+      }
+    })
+
+    var user = model.create({id: 1, name: "Bob", role: "standard"})
+
+    expect(user).to.have.property('types')
+    expect(user).to.have.property('setRole')
+    expect(user.setRole).to.be.a('function')
+
+    user.setRole('admin')
+
+    expect(user.role).to.equal('admin')
+  })
+
   function shouldBeRestified(element, route, fromServer=true) {
     expect(element).to.exist
     expect(element).to.have.property('get')
@@ -194,6 +224,6 @@ describe('RestJS', function () {
     expect(element).to.have.property('patch')
     expect(element).to.have.property('put')
     expect(element).to.have.ownPropertyDescriptor('route', {enumerable: false, configurable: false, writable: false, value: route})
-    expect(element).to.have.ownPropertyDescriptor('fromServer', {enumerable: false, configurable: false, writable: false, value: fromServer})
+    expect(element).to.have.ownPropertyDescriptor('fromServer', {enumerable: false, configurable: true, writable: false, value: fromServer})
   }
 })

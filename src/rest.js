@@ -49,18 +49,27 @@ Rest.addResponseExtractor = function(func) {
   Rest._responseExtractors.push(func)
 }
 
-Rest.factory = function(route) {
+Rest.factory = function(route, factoryMethods={}, elementMethods={}, customConfig=null) {
   return Object.create(Factory, {
     route: {
       configurable: false,
       enumerable: false,
       value: route.replace(/^\/|\/$/g, "")
+    },
+    config: {
+      configurable: false,
+      enumerable: false,
+      value: customConfig || Rest.Config
+    },
+    elementMethods: {
+      configurable: false,
+      enumerable: false,
+      value: elementMethods
     }
-  })
+  }, factoryMethods)
 }
 
-Rest._makeRequest = function(verb, route, params={}, service, body) {
-  let config = Rest.Config.getAll()
+Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
   let promise = new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest()
 
@@ -83,10 +92,11 @@ Rest._makeRequest = function(verb, route, params={}, service, body) {
         if (xhr.status != 200)
           return reject()
 
-        if(data && Object.keys(data).length)
-          resolve(Rest._restify(data, service))
-        else
+        if(data && Object.keys(data).length) {
+          resolve(Rest._restify(data, factory, config))
+        } else {
           resolve(null)
+        }
       }
 
     }
@@ -123,15 +133,17 @@ Rest._createUrl = function(route, params={}) {
   return `${baseUrl}/${route}` + (encodedParams ? `?${encodedParams}` : '')
 }
 
-Rest._restify = function(response, service) {
+Rest._restify = function(response, factory, config) {
   if (Array.isArray(response)) {
     return response.reduce(function(array, element) {
-      array.push(Rest._restify(element, service))
+      array.push(Rest._restify(element, factory, config))
       return array
     }, [])
   }
 
-  return Element.create(response, service, service.route, true)
+  let elem = factory.create.call(factory, response, true) //.create(response, true)
+  return elem
+  // return Element.create(response, service, service.route, config, service.elementMethods, true)
 }
 
 /**
@@ -140,22 +152,21 @@ Rest._restify = function(response, service) {
 
 let Factory = function() {}
 
-Factory.create = function(element) {
-  return Element.create(element, this, this.route, false)
+Factory.create = function(element, fromServer=false) {
+  return Element.create(element, this, this.route, this.config, this.elementMethods, fromServer)
 }
 
 Factory.getList = function(params={}) {
-  return Rest._makeRequest('GET', this.route, params, this, null)
+  return Rest._makeRequest(this.config, 'GET', this.route, params, this, null)
 }
 
 Factory.get = function(id, params) {
-  return Rest._makeRequest('GET', this.route + `/${id}`, params, this, null)
+  return Rest._makeRequest(this.config, 'GET', this.route + `/${id}`, params, this, null)
 }
-
 
 let Element = {}
 
-Element.create = function (element, factory, route, fromServer) {
+Element.create = function (element, factory, route, config, elementMethods, fromServer) {
   let instance = Object.create(Element, {
     route: {
       configurable: false,
@@ -163,30 +174,40 @@ Element.create = function (element, factory, route, fromServer) {
       value: route
     },
     fromServer: {
-      configurable: false,
+      configurable: true,
       enumerable: false,
       value: fromServer
     },
+    config: {
+      configurable: false,
+      enumerable: false,
+      value: config
+    },
+    factory: {
+      configurable: false,
+      enumerable: false,
+      value: factory
+    }
   })
-  Object.assign(instance, element, factory)
+  Object.assign(instance, element, elementMethods)
   return instance
 }
 
 Element.get = function(params) {
-  return Rest._makeRequest('GET', this.route + `/${this[Rest.Config.fields.id]}`, params, this, null)
+  return Rest._makeRequest(this.config, 'GET', this.route + `/${this[this.config.fields.id]}`, params, this.factory, null)
 }
 
 Element.post = function(params) {
-  return Rest._makeRequest('POST', this.route + (this.fromServer ? '/' + this[Rest.Config.fields.id] : ''), params, this, this)
+  return Rest._makeRequest(this.config, 'POST', this.route + (this.fromServer ? '/' + this[this.config.fields.id] : ''), params, this.factory, this)
 }
 
 Element.patch = function(body, params) {
   var {body, params} = _findBodyAndParams(arguments, this)
-  return Rest._makeRequest('PATCH', this.route + `/${this[Rest.Config.fields.id]}`, params, this, body)
+  return Rest._makeRequest(this.config, 'PATCH', this.route + `/${this[this.config.fields.id]}`, params, this.factory, body)
 }
 
 Element.put = function(params) {
-  return Rest._makeRequest('PUT', this.route + `/${this[Rest.Config.fields.id]}`, params, this, this)
+  return Rest._makeRequest(this.config, 'PUT', this.route + `/${this[this.config.fields.id]}`, params, this.factory, this)
 }
 
 function _findBodyAndParams(args, element) {
