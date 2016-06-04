@@ -5,21 +5,21 @@
  */
 
 let RestConfig = {
-  _config: {
+  // _config: {
     headers: [],
     responseType: 'json',
     fields: {
       id: 'id'
     }
-  }
+  // }
 }
 
 RestConfig.set = function (config) {
-  Object.assign(RestConfig._config, config)
+  Object.assign(RestConfig, config)
 }
 
 RestConfig.getAll = function() {
-  return Rest.Config._config
+  return Rest.Config
 }
 
 var Rest = {}
@@ -27,15 +27,15 @@ var Rest = {}
 /**
  * Static methods
  */
-
-Rest.Config = new Proxy(RestConfig, {
-  get: function(target, name, receiver) {
-    if(['set', 'getAll', '_config'].indexOf(name) == -1)
-      return target._config[name]
-    else
-      return target[name]
-  }
-})
+Rest.Config = RestConfig
+// Rest.Config = new Proxy(RestConfig, {
+//   get: function(target, name, receiver) {
+//     if(['set', 'getAll', '_config'].indexOf(name) == -1)
+//       return target._config[name]
+//     else
+//       return target[name]
+//   }
+// })
 
 Rest._responseInterceptors = []
 
@@ -215,7 +215,3 @@ function _findBodyAndParams(args, element) {
   }
   return {body, params}
 }
-
-
-if (typeof module != 'undefined' && module.exports)
-  module.exports = Rest

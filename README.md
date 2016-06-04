@@ -30,4 +30,4 @@ User.getList().then(function(users) {
 
 ### Tests
 
-Run tests in the browser after running `npm install` by opening `test/test.html` in the browser of your choice (only tested in Chrome)
+Run tests after running `npm install` by using `npm run unit`
