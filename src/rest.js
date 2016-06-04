@@ -49,8 +49,17 @@ Rest.addResponseExtractor = function(func) {
   Rest._responseExtractors.push(func)
 }
 
-Rest.factory = function(route, factoryMethods={}, elementMethods={}, customConfig=null) {
-  return Object.create(Factory, {
+Rest.factory = function(route, factoryTransformer, elementTransformer, customConfig=null) {
+  let prototype
+
+  if(typeof factoryTransformer == 'function') {
+    prototype = {}
+    factoryTransformer(prototype)
+  } else if(typeof factoryTransformer == 'object') {
+    prototype = factoryTransformer
+  }
+
+  let factory = Object.create(Factory, {
     route: {
       configurable: false,
       enumerable: false,
@@ -61,12 +70,16 @@ Rest.factory = function(route, factoryMethods={}, elementMethods={}, customConfi
       enumerable: false,
       value: customConfig || Rest.Config
     },
-    elementMethods: {
+    elementTransformer: {
       configurable: false,
       enumerable: false,
-      value: elementMethods
+      value: elementTransformer
     }
-  }, factoryMethods)
+  })
+
+  Object.assign(factory, prototype)
+
+  return factory
 }
 
 Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
@@ -153,7 +166,7 @@ Rest._restify = function(response, factory, config) {
 let Factory = function() {}
 
 Factory.create = function(element, fromServer=false) {
-  return Element.create(element, this, this.route, this.config, this.elementMethods, fromServer)
+  return Element.create(element, this, this.route, this.config, this.elementTransformer, fromServer)
 }
 
 Factory.getList = function(params={}) {
@@ -166,7 +179,17 @@ Factory.get = function(id, params) {
 
 let Element = {}
 
-Element.create = function (element, factory, route, config, elementMethods, fromServer) {
+Element.create = function (element, factory, route, config, elementTransformer, fromServer) {
+
+  let prototype
+
+  if(typeof elementTransformer == 'function') {
+    prototype = {}
+    elementTransformer(prototype)
+  } else if(typeof elementTransformer == 'object') {
+    prototype = elementTransformer
+  }
+
   let instance = Object.create(Element, {
     route: {
       configurable: false,
@@ -189,7 +212,7 @@ Element.create = function (element, factory, route, config, elementMethods, from
       value: factory
     }
   })
-  Object.assign(instance, element, elementMethods)
+  Object.assign(instance, element, prototype)
   return instance
 }
 

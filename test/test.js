@@ -187,34 +187,76 @@ describe('RestJS', function () {
     })
   })
 
-  it('should add factory methods', function () {
-    var model = Rest.factory('users', {
-      getUserTypes: function () {
-        return ['admin', 'standard']
-      }
+  describe('should add factory methods', function () {
+
+    it('as an object', function () {
+      var ModelFactory = Rest.factory('users', {
+        getUserTypes: function () {
+          return ['admin', 'standard']
+        }
+      })
+
+      expect(ModelFactory).to.have.property('getUserTypes')
+      expect(ModelFactory.getUserTypes).to.be.a('function')
+      expect(ModelFactory.getUserTypes()).to.deep.equal(['admin', 'standard'])
     })
 
-    expect(model)
+    it('as a function', function () {
+      var ModelFactory = Rest.factory('users', function(factory) {
+        factory.getUserTypes = function () {
+          return ['admin', 'standard']
+        }
+      })
+
+      expect(ModelFactory).to.have.property('getUserTypes')
+      expect(ModelFactory.getUserTypes).to.be.a('function')
+      expect(ModelFactory.getUserTypes()).to.deep.equal(['admin', 'standard'])
+    })
+
   })
 
-  it('should add element methods', function () {
-    var model = Rest.factory('users', null, {
-      types: ['admin', 'standard'],
-      setRole: function(type) {
-        if (this.types.indexOf(type) != -1)
-          this.role = type
-      }
+  describe('should add element methods', function () {
+
+    it('as an object', function () {
+      var ModelFactory = Rest.factory('users', null, {
+        types: ['admin', 'standard'],
+        setRole: function(type) {
+          if (this.types.indexOf(type) != -1)
+            this.role = type
+        }
+      })
+
+      var user = ModelFactory.create({id: 1, name: "Bob", role: "standard"})
+
+      expect(user).to.have.property('types')
+      expect(user).to.have.property('setRole')
+      expect(user.setRole).to.be.a('function')
+
+      user.setRole('admin')
+
+      expect(user.role).to.equal('admin')
     })
 
-    var user = model.create({id: 1, name: "Bob", role: "standard"})
+    it('as a function', function () {
+      var ModelFactory = Rest.factory('users', null, function(user) {
+        user.types = ['admin', 'standard']
+        user.setRole = function(type) {
+          if (this.types.indexOf(type) != -1)
+            this.role = type
+        }
+      })
 
-    expect(user).to.have.property('types')
-    expect(user).to.have.property('setRole')
-    expect(user.setRole).to.be.a('function')
+      var user = ModelFactory.create({id: 1, name: "Bob", role: "standard"})
 
-    user.setRole('admin')
+      expect(user).to.have.property('types')
+      expect(user).to.have.property('setRole')
+      expect(user.setRole).to.be.a('function')
 
-    expect(user.role).to.equal('admin')
+      user.setRole('admin')
+
+      expect(user.role).to.equal('admin')
+
+    })
   })
 
   function shouldBeRestified(element, route, fromServer=true) {
