@@ -50,14 +50,7 @@ Rest.addResponseExtractor = function(func) {
 }
 
 Rest.factory = function(route, factoryTransformer, elementTransformer, customConfig=null) {
-  let prototype
-
-  if(typeof factoryTransformer == 'function') {
-    prototype = {}
-    factoryTransformer(prototype)
-  } else if(typeof factoryTransformer == 'object') {
-    prototype = factoryTransformer
-  }
+  let prototype = typeof factoryTransformer == 'object' ? factoryTransformer : {}
 
   let factory = Object.create(Factory, {
     route: {
@@ -78,6 +71,9 @@ Rest.factory = function(route, factoryTransformer, elementTransformer, customCon
   })
 
   Object.assign(factory, prototype)
+
+  if(typeof factoryTransformer == 'function')
+    factory = factoryTransformer(factory)
 
   return factory
 }
@@ -181,14 +177,7 @@ let Element = {}
 
 Element.create = function (element, factory, route, config, elementTransformer, fromServer) {
 
-  let prototype
-
-  if(typeof elementTransformer == 'function') {
-    prototype = {}
-    elementTransformer(prototype)
-  } else if(typeof elementTransformer == 'object') {
-    prototype = elementTransformer
-  }
+  let prototype = typeof elementTransformer == 'object' ? elementTransformer : {}
 
   let instance = Object.create(Element, {
     route: {
@@ -213,6 +202,10 @@ Element.create = function (element, factory, route, config, elementTransformer, 
     }
   })
   Object.assign(instance, element, prototype)
+
+  if(typeof elementTransformer == 'function')
+    instance = elementTransformer(element)
+
   return instance
 }
 

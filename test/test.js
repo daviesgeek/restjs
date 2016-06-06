@@ -201,11 +201,12 @@ describe('RestJS', function () {
       expect(ModelFactory.getUserTypes()).to.deep.equal(['admin', 'standard'])
     })
 
-    it('as a function', function () {
+    it.only('as a function', function () {
       var ModelFactory = Rest.factory('users', function(factory) {
         factory.getUserTypes = function () {
           return ['admin', 'standard']
         }
+        return factory
       })
 
       expect(ModelFactory).to.have.property('getUserTypes')
@@ -239,18 +240,25 @@ describe('RestJS', function () {
 
     it('as a function', function () {
       var ModelFactory = Rest.factory('users', null, function(user) {
+
+        if(user.permissions == 'rwd')
+          user.permissions = ['read', 'write', 'delete']
+
         user.types = ['admin', 'standard']
         user.setRole = function(type) {
           if (this.types.indexOf(type) != -1)
             this.role = type
         }
+
+        return user
       })
 
-      var user = ModelFactory.create({id: 1, name: "Bob", role: "standard"})
+      var user = ModelFactory.create({id: 1, name: "Bob", role: "standard", permissions: 'rwd'})
 
       expect(user).to.have.property('types')
       expect(user).to.have.property('setRole')
       expect(user.setRole).to.be.a('function')
+      expect(user.permissions).to.be.instanceof(Array)
 
       user.setRole('admin')
 
