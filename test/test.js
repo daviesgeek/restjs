@@ -201,7 +201,7 @@ describe('RestJS', function () {
       expect(ModelFactory.getUserTypes()).to.deep.equal(['admin', 'standard'])
     })
 
-    it.only('as a function', function () {
+    it('as a function', function () {
       var ModelFactory = Rest.factory('users', function(factory) {
         factory.getUserTypes = function () {
           return ['admin', 'standard']
