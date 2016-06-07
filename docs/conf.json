@@ -1,0 +1,8 @@
+{
+  "plugins": ["plugins/markdown"],
+  "source": {
+    "include": ["package.json", "src", "README.md"]
+  },
+  "private": true,
+  "package": "package.json"
+}

@@ -67,3 +67,5 @@ jspm_packages
 
 coverage
 dist
+docs/*
+!docs/conf.json
