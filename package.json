@@ -10,7 +10,7 @@
     "docs": "node_modules/.bin/jsdoc --configure docs/conf.json --destination docs"
   },
   "author": "Matthew Davies <matthew@daviesgeek.com> (http://daviesgeek.com)",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-polyfill": "^6.9.1",
     "babel-preset-es2015": "^6.9.0",
