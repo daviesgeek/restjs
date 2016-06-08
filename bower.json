@@ -1,0 +1,28 @@
+{
+  "name": "restjs",
+  "description": "An 'ORM' style library for consuming RESTful APIs on the frontend",
+  "main": "dist/rest.js",
+  "authors": [
+    "Matthew Davies <matthew@daviesgeek.com> (http://daviesgeek.com)"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "orm",
+    "rest"
+  ],
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node",
+    "yui"
+  ],
+  "homepage": "http://github.com/daviesgeek/restjs",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
