@@ -34,3 +34,7 @@ Doctor.getList().then(function(doctors) {
 
 RestJS uses [Karma](https://karma-runner.github.io), [Mocha](https://mochajs.org/), and [Chai](http://chaijs.com/) for running tests.
 Run tests after running `npm install` by using `npm run unit`
+
+### Docs
+
+All docs are written using the [JSDoc](http://usejsdoc.org/) syntax.
