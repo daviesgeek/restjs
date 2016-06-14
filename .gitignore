@@ -47,7 +47,7 @@ coverage
 .nyc_output
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
+.grunts
 
 # node-waf configuration
 .lock-wscript
@@ -66,6 +66,5 @@ jspm_packages
 .node_repl_history
 
 coverage
-dist
 docs/*
 !docs/conf.json
