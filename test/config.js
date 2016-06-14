@@ -44,7 +44,10 @@ module.exports = function (config) {
       'karma-babel-preprocessor'
     ],
 
-    singleRun: false
+    singleRun: false,
+    coverageReporter: {
+      dir: (process.env.CIRCLE_TEST_REPORTS || 'coverage')
+    },
 
   })
 }
