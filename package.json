@@ -4,7 +4,7 @@
   "description": "An 'ORM' style library for consuming RESTful APIs on the frontend",
   "main": "rest.js",
   "scripts": {
-    "build": "babel src/rest.js -d dist --presets es2015",
+    "build": "cd src && babel rest.js -d ../dist --presets es2015 && cd ../",
     "test": "karma start test/config.js --single-run=true",
     "unit": "karma start test/config.js",
     "docs": "jsdoc --configure docs/conf.json --destination docs",
