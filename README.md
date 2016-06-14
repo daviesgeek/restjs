@@ -1,4 +1,5 @@
 # RestJS
+[![CircleCI](https://circleci.com/gh/daviesgeek/restjs.svg?style=svg)](https://circleci.com/gh/daviesgeek/restjs)
 
 RestJS is somewhat based off [Restangular](https://github.com/mgonto/restangular) and is an attempt to create a sort of frontend "ORM" for consuming RESTful APIs.
 
