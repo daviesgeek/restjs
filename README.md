@@ -2,7 +2,7 @@
 
 RestJS is somewhat based off [Restangular](https://github.com/mgonto/restangular) and is an attempt to create a sort of frontend "ORM" for consuming RESTful APIs.
 
-This is very much still a 1.0 version, so expect breaking changes and feature updates.
+This is very much still a 1.0 version, so expect breaking changes and feature updates. If you'd like, fill out [this form](http://goo.gl/forms/K3noZAe0MX1j8OjT2) to receive an invite to Slack.
 
 ### The 10 second version
 
