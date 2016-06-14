@@ -21,6 +21,7 @@ If you'd like to submit a pull request, there are a couple more things to add:
 - Please add a note under "Unreleased" in [CHANGELOG.md](@todo) to note your changes (see the comments in the changelog for more details)
 - Make sure unit tests aren't failing (Read about [how to run tests](@todo)).
   - If you added functionality, please add test coverage to verify the expected behavior of new features.
+- Don't update the dist folder in your PR. Leave that for the release stage
 
 ### Coding Conventions
 
