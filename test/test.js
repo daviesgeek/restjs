@@ -267,6 +267,55 @@ describe('RestJS', function () {
     })
   })
 
+  describe('should resolve/reject requests based on status codes', function() {
+
+    it('should reject a 199 status code', function(done) {
+      server.respondWith(function (request) {
+        request.respond(199)
+      })
+      User.getList().then(function() {
+        console.log('should never run')
+      }).catch(done)
+    })
+
+    it('should reject a 300 status code', function(done) {
+      server.respondWith(function (request) {
+        request.respond(300)
+      })
+      User.getList().then(function() {
+        console.log('should never run')
+      }).catch(done)
+    })
+
+    it('should reject a 500 status code', function(done) {
+      server.respondWith(function (request) {
+        request.respond(500)
+      })
+      User.getList().then(function() {
+        console.log('should never run')
+      }).catch(done)
+    })
+
+    it('should resolve a 200 status code', function(done) {
+      server.respondWith(function (request) {
+        request.respond(200)
+      })
+      User.getList().catch(function() {
+        console.log('should never run')
+      }).then(done)
+    })
+
+    it('should resolve a 201 status code', function(done) {
+      server.respondWith(function (request) {
+        request.respond(201)
+      })
+      User.getList().catch(function() {
+        console.log('should never run')
+      }).then(done)
+    })
+  })
+
+
   function shouldBeRestified(element, route, fromServer=true) {
     expect(element).to.exist
     expect(element).to.have.property('get')

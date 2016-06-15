@@ -193,8 +193,8 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
           data = extractor(data)
         })
 
-        // If the status isn't 200, reject the promise
-        if (xhr.status != 200)
+        // If the status isn't in between 200 or 299
+        if (xhr.status < 200 || xhr.status > 299)
           return reject()
 
         // Make sure there's data before restifying it, otherwise just resolve with null
