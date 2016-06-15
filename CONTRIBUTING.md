@@ -27,6 +27,7 @@ If you'd like to submit a pull request, there are a couple more things to add:
 
 ### Coding Conventions
 
+- Run `npm run lint` to lint your code.
 - No trailing whitespace.
 - Indent using two spaces (not tabs; soft tabs).
 - Always have a space before an opening bracket: 
