@@ -17,7 +17,7 @@ If you haven't found an existing issue, take some time to follow some simple gui
 
 If you'd like to submit a pull request, there are a couple more things to add:
 
-- All changes not in a release will be made on dev
+- All changes not in a release will be made on [the `dev` branch](https://github.com/daviesgeek/restjs/tree/dev)
 - Please make sure you update surrounding comments in the code you changed. All comments are written in [JSDoc](http://usejsdoc.org/) format. PRs will not be merged in without valid JSDoc comments (run `npm run docs` to confirm & to rebuild the docs).
 - Please add a note under "Unreleased" in [CHANGELOG.md](https://github.com/daviesgeek/restjs/blob/master/CHANGELOG.md) to note your changes (see the comments in the changelog for more details)
 - Make sure unit tests aren't failing.
