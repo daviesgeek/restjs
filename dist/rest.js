@@ -200,8 +200,8 @@ Rest._makeRequest = function (config, verb, route) {
           data = extractor(data);
         });
 
-        // If the status isn't 200, reject the promise
-        if (xhr.status != 200) return reject();
+        // If the status isn't in between 200 or 299
+        if (xhr.status < 200 || xhr.status > 299) return reject();
 
         // Make sure there's data before restifying it, otherwise just resolve with null
         if (data && Object.keys(data).length) resolve(Rest._restify(data, factory, config));else resolve(null);
@@ -535,3 +535,4 @@ Rest._findBodyAndParams = function (args, element) {
   // Return it as a "tuple" of sorts
   return { body: body, params: params };
 };
+Rest.VERSION = '1.0.1'

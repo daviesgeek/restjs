@@ -1,6 +1,6 @@
 {
   "name": "restjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An 'ORM' style library for consuming RESTful APIs on the frontend",
   "main": "rest.js",
   "scripts": {
