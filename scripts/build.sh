@@ -3,20 +3,28 @@
 # Get the current version
 VERSION=$(json -f package.json version)
 
+if [ -z "$CIRCLE_ARTIFACTS"]; then
+  DIST_FOLDER='dist'
+else
+  DIST_FOLDER=$CIRCLE_ARTIFACTS
+fi
+
+
 # Make the dist folder and clear it if necessary
-mkdir -p dist
-rm -rf dist/*
+mkdir -p $DIST_FOLDER
+rm -rf "$DIST_FOLDER/*"
+
 
 # First, compile the source using babel
-cat src/rest.js | babel --presets es2015 --out-file dist/rest.js
+cat src/rest.js | babel --presets es2015 --out-file "$DIST_FOLDER/rest.js"
 
 # And add the version number
-echo "Rest.VERSION = '$VERSION'" >> dist/rest.js
+echo "Rest.VERSION = '$VERSION'" >> "$DIST_FOLDER/rest.js"
 
 # Create the polyfill version
-cat ./node_modules/babel-polyfill/dist/polyfill.js >> dist/rest.polyfill.js
-cat dist/rest.js >> dist/rest.polyfill.js
+cat ./node_modules/babel-polyfill/dist/polyfill.js >> "$DIST_FOLDER/rest.polyfill.js"
+cat "$DIST_FOLDER/rest.js" >> $DIST_FOLDER/rest.polyfill.js""
 
 # Create a minified version of both dist files
-uglifyjs --mangle --output dist/rest.min.js -- dist/rest.js
-uglifyjs --mangle --output dist/rest.polyfill.min.js -- dist/rest.polyfill.js
+uglifyjs --mangle --output "$DIST_FOLDER/rest.min.js" -- "$DIST_FOLDER/rest.js"
+uglifyjs --mangle --output "$DIST_FOLDER/rest.polyfill.min.js" -- "$DIST_FOLDER/rest.polyfill.js"

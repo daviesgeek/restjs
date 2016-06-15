@@ -46,6 +46,9 @@ module.exports = function (config) {
     ],
 
     singleRun: false,
+    coverageReporter: {
+      dir: (process.env.CIRCLE_TEST_REPORTS || '') + 'coverage'
+    },
     junitReporter: {
       outputDir: (process.env.CIRCLE_TEST_REPORTS || 'coverage')
     },
