@@ -3,6 +3,7 @@
 ## Unreleased
 Fixed problem with only resolving 200s. Oops.
 Added test coverage for said status code problem.
+Now includes (optionally), polyfill and minified versions
 
 ## 1.0.0 - 2016-06-13
 Initial release
