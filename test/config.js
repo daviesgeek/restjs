@@ -12,7 +12,7 @@ module.exports = function (config) {
     ],
     browsers: ['PhantomJS'],
 
-    reporters: ['progress', 'coverage', 'junit'],
+    reporters: ['progress', 'coverage', 'coveralls', 'junit'],
     preprocessors: {
       'src/*.js': ['coverage', 'babel'],
       'test/*.js': ['babel'],
@@ -43,11 +43,21 @@ module.exports = function (config) {
       // 'karma-safari-launcher',
       'karma-babel-preprocessor',
       'karma-junit-reporter',
+      'karma-coveralls',
     ],
 
     singleRun: false,
     coverageReporter: {
-      dir: (process.env.CIRCLE_TEST_REPORTS || '') + 'coverage'
+      reporters: [
+        {
+          type: 'html',
+          dir: (process.env.CIRCLE_TEST_REPORTS || '') + 'coverage/html'
+        },
+        {
+          type: 'lcov',
+          dir: (process.env.CIRCLE_TEST_REPORTS || '') + 'coverage/lcov'
+        }
+      ]
     },
     junitReporter: {
       outputDir: (process.env.CIRCLE_TEST_REPORTS || 'coverage')
