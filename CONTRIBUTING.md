@@ -23,6 +23,7 @@ If you'd like to submit a pull request, there are a couple more things to add:
 - Make sure unit tests aren't failing.
   - If you added functionality, please add test coverage to verify the expected behavior of new features.
 - Don't update the dist folder in your PR. Leave that for the release stage
+- Add yourself to CONTRIBUTORS.md
 
 ### Coding Conventions
 
