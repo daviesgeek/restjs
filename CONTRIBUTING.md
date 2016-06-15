@@ -3,23 +3,24 @@
 Thanks for taking the time to contribute to this project.
 
 ## Bug Reports
-If you think you've found a bug, please first search [the issues list](@todo) before opening an issue.
+If you think you've found a bug, please first search [the issues list](https://github.com/daviesgeek/restjs/issues) before opening an issue.
 
 ### Writing A Bug Report
 
 If you haven't found an existing issue, take some time to follow some simple guidelines for writing the issue:
 
 - Use a **clear and descriptive title** for the issue.
-- If possible use [this Plunker **template**](@todo) to show the problem. Or, submit a failing unit test (Read about [how to run tests](@todo)).
+- If possible use [this Plunker **template**](http://plnkr.co/edit/s02mNeQfE8pLv07t4JJQ) to show the problem. Or, submit a failing unit test (Read about [how to run tests](https://github.com/daviesgeek/restjs/blob/master/README.md#tests)).
 - **Describe** how you encountered the bug with as much detail as possible. For instance, make sure you include OS and browser versions, as well as code snippets to demonstrate the issue.
 
 ## Pull Requests
 
 If you'd like to submit a pull request, there are a couple more things to add:
 
+- All changes not in a release will be made on dev
 - Please make sure you update surrounding comments in the code you changed. All comments are written in [JSDoc](http://usejsdoc.org/) format. PRs will not be merged in without valid JSDoc comments (run `npm run docs` to confirm & to rebuild the docs).
-- Please add a note under "Unreleased" in [CHANGELOG.md](@todo) to note your changes (see the comments in the changelog for more details)
-- Make sure unit tests aren't failing (Read about [how to run tests](@todo)).
+- Please add a note under "Unreleased" in [CHANGELOG.md](https://github.com/daviesgeek/restjs/blob/master/CHANGELOG.md) to note your changes (see the comments in the changelog for more details)
+- Make sure unit tests aren't failing.
   - If you added functionality, please add test coverage to verify the expected behavior of new features.
 - Don't update the dist folder in your PR. Leave that for the release stage
 
