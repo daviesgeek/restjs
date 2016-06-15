@@ -19,7 +19,7 @@ rm -rf "$DIST_FOLDER/*"
 cat src/rest.js | babel --presets es2015 --out-file "$DIST_FOLDER/rest.js"
 
 # And add the version number
-echo "Rest.VERSION = '$VERSION'" >> "$DIST_FOLDER/rest.js"
+echo "Rest.VERSION = \"$VERSION\"" >> "$DIST_FOLDER/rest.js"
 
 # Create the polyfill version
 cat ./node_modules/babel-polyfill/dist/polyfill.js >> "$DIST_FOLDER/rest.polyfill.js"

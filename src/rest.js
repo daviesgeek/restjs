@@ -1,4 +1,4 @@
-'use strict'
+"use strict"
 
 /**
  * The globally available RestJS library
@@ -19,11 +19,11 @@ var Rest = {}
  */
 Rest.Config = {
   headers: [],
-  responseType: 'json',
+  responseType: "json",
   fields: {
-    id: 'id'
+    id: "id"
   },
-  baseUrl: ''
+  baseUrl: ""
 }
 
 /**
@@ -143,13 +143,13 @@ Rest.factory = function(route, factoryTransformer, elementTransformer, customCon
   })
 
   // Make sure the prototype is set either to the transformer (if it's an object), or else, an empty object
-  let transformer = typeof factoryTransformer == 'object' ? factoryTransformer : {}
+  let transformer = typeof factoryTransformer == "object" ? factoryTransformer : {}
 
   // Add the transformer methods, or an empty object (see above line)
   Object.assign(factory, transformer)
 
   // Only run the transformer if it's a function
-  if(typeof factoryTransformer == 'function')
+  if(typeof factoryTransformer == "function")
     factory = factoryTransformer(factory)
 
   // All done creating the factory, return it!
@@ -173,7 +173,7 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
     let xhr = new XMLHttpRequest()
 
     // Set the xhr config
-    if('timeout' in config)
+    if("timeout" in config)
       xhr.timeout         = config.timeout
     xhr.withCredentials = config.withCredentials
     xhr.responseType    = config.responseType
@@ -220,11 +220,10 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
     // If the body exists and the response type is JSON, stringify it first
     // Otherwise, just send it as is,
     // Else, just send it without a body
-    if (body && xhr.responseType == 'json')
+    if (body && xhr.responseType == "json")
       return xhr.send(JSON.stringify(body))
     else
       return xhr.send(body)
-    return xhr.send()
   })
 
   return promise
@@ -252,10 +251,10 @@ Rest._createUrl = function(route, params={}) {
     return array
 
   // Join the array of (now encoded) params with &'s
-  }, []).join('&')
+  }, []).join("&")
 
   // Return the entire URL, optionally adding the parameter string if it exists
-  return `${baseUrl}/${route}` + (encodedParams ? `?${encodedParams}` : '')
+  return `${baseUrl}/${route}` + (encodedParams ? `?${encodedParams}` : "")
 }
 
 /**
@@ -346,10 +345,10 @@ Factory.create = function(element, fromServer=false) {
     }
   })
 
-  let prototype = typeof this.elementTransformer == 'object' ? this.elementTransformer : {}
+  let prototype = typeof this.elementTransformer == "object" ? this.elementTransformer : {}
   Object.assign(instance, element, prototype)
 
-  if(typeof this.elementTransformer == 'function')
+  if(typeof this.elementTransformer == "function")
     instance = this.elementTransformer(element)
 
   return instance
@@ -361,7 +360,7 @@ Factory.create = function(element, fromServer=false) {
  * @return {Promise<xhr.response>} The request promise
  */
 Factory.getList = function(params={}) {
-  return Rest._makeRequest(this.config, 'GET', this.route, params, this, null)
+  return Rest._makeRequest(this.config, "GET", this.route, params, this, null)
 }
 
 /**
@@ -371,7 +370,7 @@ Factory.getList = function(params={}) {
  * @return {Promise<xhr.response>} The request promise
  */
 Factory.get = function(id, params={}) {
-  return Rest._makeRequest(this.config, 'GET', this.route + `/${id}`, params, this, null)
+  return Rest._makeRequest(this.config, "GET", this.route + `/${id}`, params, this, null)
 }
 
 
@@ -397,7 +396,7 @@ let Element = {}
  * @kind function
  */
 Element.get = function(params) {
-  return Rest._makeRequest(this.config, 'GET', this.route + `/${this[this.config.fields.id]}`, params, this.factory, null)
+  return Rest._makeRequest(this.config, "GET", this.route + `/${this[this.config.fields.id]}`, params, this.factory, null)
 }
 
 /**
@@ -415,7 +414,7 @@ Element.get = function(params) {
  * @kind function
  */
 Element.post = function(params) {
-  return Rest._makeRequest(this.config, 'POST', this.route + (this.fromServer ? '/' + this[this.config.fields.id] : ''), params, this.factory, this)
+  return Rest._makeRequest(this.config, "POST", this.route + (this.fromServer ? "/" + this[this.config.fields.id] : ""), params, this.factory, this)
 }
 
 /**
@@ -437,9 +436,9 @@ Element.post = function(params) {
  * @name Element#patch
  * @kind function
  */
-Element.patch = function(body, params) {
-  var {body, params} = Rest._findBodyAndParams(arguments, this)
-  return Rest._makeRequest(this.config, 'PATCH', this.route + `/${this[this.config.fields.id]}`, params, this.factory, body)
+Element.patch = function() {
+  let {body, params} = Rest._findBodyAndParams(arguments, this)
+  return Rest._makeRequest(this.config, "PATCH", this.route + `/${this[this.config.fields.id]}`, params, this.factory, body)
 }
 
 /**
@@ -457,7 +456,7 @@ Element.patch = function(body, params) {
  * @kind function
  */
 Element.put = function(params) {
-  return Rest._makeRequest(this.config, 'PUT', this.route + `/${this[this.config.fields.id]}`, params, this.factory, this)
+  return Rest._makeRequest(this.config, "PUT", this.route + `/${this[this.config.fields.id]}`, params, this.factory, this)
 }
 
 /**
@@ -486,8 +485,7 @@ Element.put = function(params) {
 Rest._findBodyAndParams = function(args, element) {
 
   // Set the defaults for the body & params
-  let body = {}, params;
-
+  let body = {}, params
 
   // If the first argument is an array
   if(args[0] instanceof Array) {
@@ -501,12 +499,12 @@ Rest._findBodyAndParams = function(args, element) {
     params = args[1] || {}
 
   // If the first param is an object, the body has been passed in directly
-  } else if(typeof args[0] == 'object') {
+  } else if(typeof args[0] == "object") {
     body = args[0]
     params = args[1] || {}
 
   // Else if the first argument is a string, the properties have been passed in as args
-  } else if(typeof args[0] == 'string') {
+  } else if(typeof args[0] == "string") {
 
 
     // Loop through the args
@@ -514,11 +512,11 @@ Rest._findBodyAndParams = function(args, element) {
       var arg = args[i]
 
       // If the arg is a string, it's a property of the element
-      if(typeof arg == 'string') {
+      if(typeof arg == "string") {
         body[arg] = element[arg]
 
       // Else if it's an object and the last argument, it's the parameters object…so set it
-      } else if(typeof arg == 'object' && i == args.length - 1) {
+      } else if(typeof arg == "object" && i == args.length - 1) {
         params = arg
       }
     }
