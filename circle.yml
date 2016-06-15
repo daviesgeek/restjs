@@ -1,0 +1,4 @@
+general:
+  branches:
+    ignore:
+      - gh-pages # Turn off builds for this branch
