@@ -1,5 +1,6 @@
 # RestJS
-[![CircleCI](https://circleci.com/gh/daviesgeek/restjs.svg?style=svg)](https://circleci.com/gh/daviesgeek/restjs)
+
+[![CircleCI](https://circleci.com/gh/daviesgeek/restjs/tree/master.svg?style=svg)](https://circleci.com/gh/daviesgeek/restjs/tree/master)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/restjs.svg)](https://saucelabs.com/u/restjs)
 
