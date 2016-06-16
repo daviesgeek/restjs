@@ -7,7 +7,7 @@
     "build": "scripts/build.sh",
     "test": "npm run lint && karma start test/config.js --single-run=true",
     "lint": "eslint src/*",
-    "unit": "karma start test/config.js",
+    "unit": "karma start test/config.js --browsers=PhantomJS",
     "docs": "jsdoc --configure docs/conf.json --destination docs",
     "release": "scripts/release.sh"
   },
@@ -61,6 +61,7 @@
     "karma-junit-reporter": "^1.0.0",
     "karma-mocha": "^1.0.1",
     "karma-phantomjs-launcher": "^1.0.0",
+    "karma-sauce-launcher": "^1.0.0",
     "karma-sinon": "^1.0.5",
     "mocha": "^2.5.3",
     "phantomjs-prebuilt": "^2.1.3",

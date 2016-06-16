@@ -1,9 +1,14 @@
 # RestJS
 [![CircleCI](https://circleci.com/gh/daviesgeek/restjs.svg?style=svg)](https://circleci.com/gh/daviesgeek/restjs)
 
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/restjs.svg)](https://saucelabs.com/u/restjs)
+
+
 RestJS is somewhat based off [Restangular](https://github.com/mgonto/restangular). It is an “ORM” style library for consuming REST APIs on the frontend.
 
-This is very much still a 1.0 version, so expect breaking changes and feature updates. If you'd like, fill out [this form](http://goo.gl/forms/K3noZAe0MX1j8OjT2) to receive an invite to Slack.
+This is very much still a 1.0 version, so expect breaking changes and feature updates. It's also only really been tested in Chrome on OS X and PhantomJS, so it definitely needs more browser testing.
+
+If you'd like, fill out [this form](http://goo.gl/forms/K3noZAe0MX1j8OjT2) to receive an invite to Slack.
 
 ## Installing
 
@@ -60,7 +65,7 @@ Run `npm install` to install all the build tools. `src/rest.js` contains all the
 ### Tests
 
 RestJS uses [Karma](https://karma-runner.github.io), [Mocha](https://mochajs.org/), and [Chai](http://chaijs.com/) for running tests.
-Run tests with `npm run unit`
+Run local tests with `npm run unit`. Running `npm run test` will first lint the files, then run all the tests on Sauce Labs using [karma-sauce-launcher](https://github.com/karma-runner/karma-sauce-launcher).
 
 ### Docs
 
