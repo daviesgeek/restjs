@@ -13,7 +13,7 @@ Install using [Bower](http://bower.io):
 bower install restjs
 ```
 
-By default, [the non-minified, non-polyfill version](https://github.com/daviesgeek/restjs/blob/master/dist/rest.js) is set as [the `main` property](https://github.com/bower/spec/blob/master/json.md#main) for the Bower package. [The polyfill version](https://github.com/daviesgeek/restjs/blob/master/dist/rest.polyfill.js) includes [the Babel polyfill](https://babeljs.io/docs/usage/polyfill/) in the source. Depending on what you're doing, you might need the polyfill to be included. Here's a quick example of how to use the polyfill version instead:
+By default, the non-minified, non-polyfill version is set as [the `main` property](https://github.com/bower/spec/blob/master/json.md#main) for the Bower package. The polyfill version includes [the Babel polyfill](https://babeljs.io/docs/usage/polyfill/) in the source. Depending on what you're doing, you might need the polyfill to be included. Here's a quick example of how to use the polyfill version instead:
 
 ```js
 {
