@@ -22,11 +22,37 @@
       <h1>
 <a id="restjs" class="anchor" href="#restjs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>RestJS</h1>
 
-<p><a href="https://circleci.com/gh/daviesgeek/restjs"><img src="https://circleci.com/gh/daviesgeek/restjs.svg?style=svg" alt="CircleCI"></a></p>
+<p><a href="https://circleci.com/gh/daviesgeek/restjs/tree/master"><img src="https://circleci.com/gh/daviesgeek/restjs/tree/master.svg?style=svg" alt="CircleCI"></a></p>
 
-<p>RestJS is somewhat based off <a href="https://github.com/mgonto/restangular">Restangular</a> and is an attempt to create a sort of frontend "ORM" for consuming RESTful APIs.</p>
+<p><a href="https://saucelabs.com/u/restjs"><img src="https://saucelabs.com/browser-matrix/restjs.svg" alt="Sauce Test Status"></a></p>
 
-<p>This is very much still a 1.0 version, so expect breaking changes and feature updates. If you'd like, fill out <a href="http://goo.gl/forms/K3noZAe0MX1j8OjT2">this form</a> to receive an invite to Slack.</p>
+<p>RestJS is somewhat based off <a href="https://github.com/mgonto/restangular">Restangular</a>. It is an “ORM” style library for consuming REST APIs on the frontend.</p>
+
+<p>This is very much still a 1.0 version, so expect breaking changes and feature updates. It's also only really been tested in Chrome on OS X and PhantomJS, so it definitely needs more browser testing.</p>
+
+<p>If you'd like, fill out <a href="http://goo.gl/forms/K3noZAe0MX1j8OjT2">this form</a> to receive an invite to Slack.</p>
+
+<h2>
+<a id="installing" class="anchor" href="#installing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installing</h2>
+
+<p>Install using <a href="http://bower.io">Bower</a>:</p>
+
+<div class="highlight highlight-source-js"><pre>bower install restjs</pre></div>
+
+<p>By default, the non-minified, non-polyfill version is set as <a href="https://github.com/bower/spec/blob/master/json.md#main">the <code>main</code> property</a> for the Bower package. The polyfill version includes <a href="https://babeljs.io/docs/usage/polyfill/">the Babel polyfill</a> in the source. Depending on what you're doing, you might need the polyfill to be included. Here's a quick example of how to use the polyfill version instead:</p>
+
+<div class="highlight highlight-source-js"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>overrides<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+    <span class="pl-s"><span class="pl-pds">"</span>restjs<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+      <span class="pl-s"><span class="pl-pds">"</span>main<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+        <span class="pl-s"><span class="pl-pds">"</span>dist/rest.polyfill.js<span class="pl-pds">"</span></span>
+      ]
+    }
+  }
+}</pre></div>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
 
 <h3>
 <a id="the-10-second-version" class="anchor" href="#the-10-second-version" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The 10 second version</h3>
@@ -54,13 +80,13 @@
 <h2>
 <a id="development" class="anchor" href="#development" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Development</h2>
 
-<p><code>src/rest.js</code> contains all the source code. Run <code>npm run build</code> to run <a href="https://babeljs.io/">Babel</a> to compile for the browser.</p>
+<p>Run <code>npm install</code> to install all the build tools. <code>src/rest.js</code> contains all the source code. Run <code>npm run build</code> to run <a href="https://babeljs.io/">Babel</a> to compile for the browser.</p>
 
 <h3>
 <a id="tests" class="anchor" href="#tests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tests</h3>
 
 <p>RestJS uses <a href="https://karma-runner.github.io">Karma</a>, <a href="https://mochajs.org/">Mocha</a>, and <a href="http://chaijs.com/">Chai</a> for running tests.
-Run tests after running <code>npm install</code> by using <code>npm run unit</code></p>
+Run local tests with <code>npm run unit</code>. Running <code>npm run test</code> will first lint the files, then run all the tests on Sauce Labs using <a href="https://github.com/karma-runner/karma-sauce-launcher">karma-sauce-launcher</a>.</p>
 
 <h3>
 <a id="docs" class="anchor" href="#docs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Docs</h3>
