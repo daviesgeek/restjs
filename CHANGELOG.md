@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 1.0.2 - 2016-08-31
+Updated to possibly work with Node. This will _not_ work without an `XMLHttpRequest` polyfill for Node
+
 ## 1.0.1 - 2016-06-14
 Fixed problem with only resolving 200s. Oops.  
 Added test coverage for said status code problem.  

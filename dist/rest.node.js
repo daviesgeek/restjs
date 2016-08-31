@@ -535,3 +535,4 @@ Rest._findBodyAndParams = function (args, element) {
   return { body: body, params: params };
 };
 Rest.VERSION = "1.0.1"
+export default Rest;
