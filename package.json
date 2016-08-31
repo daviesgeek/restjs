@@ -6,6 +6,7 @@
   "scripts": {
     "build": "scripts/build.sh",
     "test": "npm run lint && karma start test/config.js --single-run=true",
+    "local-test": "npm run lint && karma start test/config.local.js --single-run=true",
     "lint": "eslint src/*",
     "unit": "karma start test/config.js --browsers=PhantomJS",
     "docs": "jsdoc --configure docs/conf.json --destination docs",
