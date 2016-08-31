@@ -25,6 +25,9 @@ echo "Rest.VERSION = \"$VERSION\"" >> "$DIST_FOLDER/rest.js"
 cat ./node_modules/babel-polyfill/dist/polyfill.js >> "$DIST_FOLDER/rest.polyfill.js"
 cat "$DIST_FOLDER/rest.js" >> $DIST_FOLDER/rest.polyfill.js""
 
+cp $DIST_FOLDER/rest.js $DIST_FOLDER/rest.node.js
+echo "export default Rest;" >> "$DIST_FOLDER/rest.node.js"
+
 # Create a minified version of both dist files
 uglifyjs --mangle --output "$DIST_FOLDER/rest.min.js" -- "$DIST_FOLDER/rest.js"
 uglifyjs --mangle --output "$DIST_FOLDER/rest.polyfill.min.js" -- "$DIST_FOLDER/rest.polyfill.js"

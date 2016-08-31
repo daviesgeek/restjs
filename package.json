@@ -2,7 +2,7 @@
   "name": "restjs",
   "version": "1.0.1",
   "description": "An 'ORM' style library for consuming RESTful APIs on the frontend",
-  "main": "dist/rest.js",
+  "main": "dist/rest.node.js",
   "scripts": {
     "build": "scripts/build.sh",
     "test": "npm run lint && karma start test/config.js --single-run=true",
