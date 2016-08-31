@@ -42,8 +42,8 @@ By default, the non-minified, non-polyfill version is set as [the `main` propert
 // Create a model factory
 let Doctor = Rest.factory('doctors')
 
-// Create a new user, passing in the object as the first argument
-let doctor = User.create({id: 11, first: "Matt", last: "Smith"})
+// Create a new element, passing in the object as the first argument
+let doctor = Doctor.create({id: 11, first: "Matt", last: "Smith"})
 
 // Save it!
 doctor.post()
