@@ -33,6 +33,8 @@ By default, the non-minified, non-polyfill version is set as [the `main` propert
 }
 ```
 
+Other options include the minified version ([`dist/rest.min.js`](https://github.com/daviesgeek/restjs/blob/master/dist/rest.min.js)), the Node version ([`dist/rest.node.js`](https://github.com/daviesgeek/restjs/blob/master/dist/rest.min.js): includes an export statement for ES6 modules), and the polyfill & minified version ([`dist/rest.polyfill.min.js`](https://github.com/daviesgeek/restjs/blob/master/dist/rest.polyfill.min.js))
+
 ## Usage
 
 ### The 10 second version
@@ -56,8 +58,52 @@ doctor.patch()
 Doctor.getList().then(function(doctors) {
   // Do something with the array
 })
+```
+
+### Config
+
+Configuration can be set using `Rest.Config.set()`:
+
+```js
+Rest.Config.set({baseUrl: 'https://restjs.js.org'})
+```
+##### `baseUrl`: String
+The base URL for requests. I.e, if the `baseUrl` is set to `http://google.com`, all requests will be prefixed with `http://google.com`
+
+##### `defaultParams`: Object
+The default parameters for requests. Can be overriden by specific requests
+
+##### `fields`: Object
+Custom fields that RestJS uses to pick up on properties needed.
+
+###### &nbsp;&nbsp;&nbsp;&nbsp; `id`: String
+&nbsp;&nbsp;&nbsp;&nbsp; The property that RestJS should use as the id. This will be used for subsequent requests, such as DELETE, PUT or PATCH requests: `<baseUrl>/<resource>/<id field>`
+
+##### `headers`: String[String[]]
+An array of headers to send for the request. The headers must be an array, with each element containing an array, with the first element being the header name and the second the header value.
+
+```js
+
+Rest.Config.set(
+  {
+    headers: [
+      ['X-Requested-With': 'RestJ']
+    ]
+  }
+)
 
 ```
+
+See [`XMLHttpRequest.setRequestHeader()`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader)
+
+##### `responseType`: String
+The type of the response. See [`XMLHttpRequest.responseType`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType)
+
+##### `timeout`: Integer
+The timeout setting for XHR requests. See [`XMLHttpRequest.timeout`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout)
+
+##### `withCredentials`: Boolean
+whether to send CORS credentials with the request or not. See [`XMLHttpRequest.withCredentials`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials)
 
 ## Development
 
