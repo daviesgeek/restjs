@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3>restjs 1.1.0</h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>RestJS</h1><p><a href="https://circleci.com/gh/daviesgeek/restjs/tree/master"><img src="https://circleci.com/gh/daviesgeek/restjs/tree/master.svg?style=svg" alt="CircleCI"></a></p>
+<p><a href="https://saucelabs.com/u/restjs"><img src="https://saucelabs.com/browser-matrix/restjs.svg" alt="Sauce Test Status"></a></p>
+<p>RestJS is somewhat based off <a href="https://github.com/mgonto/restangular">Restangular</a>. It is an “ORM” style library for consuming REST APIs on the frontend.</p>
+<p>This is very much still a 1.0 version, so expect breaking changes and feature updates. It's also only really been tested in Chrome on OS X and PhantomJS, so it definitely needs more browser testing.</p>
+<p>If you'd like, fill out <a href="http://goo.gl/forms/K3noZAe0MX1j8OjT2">this form</a> to receive an invite to Slack.</p>
+<h2>Installing</h2><p>Install using <a href="http://bower.io">Bower</a>:</p>
+<pre class="prettyprint source lang-js"><code>bower install restjs</code></pre><p>By default, the non-minified, non-polyfill version is set as <a href="https://github.com/bower/spec/blob/master/json.md#main">the <code>main</code> property</a> for the Bower package. The polyfill version includes <a href="https://babeljs.io/docs/usage/polyfill/">the Babel polyfill</a> in the source. Depending on what you're doing, you might need the polyfill to be included. Here's a quick example of how to use the polyfill version instead:</p>
+<pre class="prettyprint source lang-js"><code>{
+  &quot;overrides&quot;: {
+    &quot;restjs&quot;: {
+      &quot;main&quot;: [
+        &quot;dist/rest.polyfill.js&quot;
+      ]
+    }
+  }
+}</code></pre><p>Other options include the minified version (<a href="https://github.com/daviesgeek/restjs/blob/master/dist/rest.min.js"><code>dist/rest.min.js</code></a>), the Node version (<a href="https://github.com/daviesgeek/restjs/blob/master/dist/rest.min.js"><code>dist/rest.node.js</code></a>: includes an export statement for ES6 modules), and the polyfill &amp; minified version (<a href="https://github.com/daviesgeek/restjs/blob/master/dist/rest.polyfill.min.js"><code>dist/rest.polyfill.min.js</code></a>)</p>
+<h2>Usage</h2><h3>The 10 second version</h3><pre class="prettyprint source lang-js"><code>
+// Create a model factory
+let Doctor = Rest.factory('doctors')
+
+// Create a new element, passing in the object as the first argument
+let doctor = Doctor.create({id: 11, first: &quot;Matt&quot;, last: &quot;Smith&quot;})
+
+// Save it!
+doctor.post()
+
+// Update something
+doctor.name = &quot;Matthew&quot;
+doctor.patch()
+
+// Get a list of users
+Doctor.getList().then(function(doctors) {
+  // Do something with the array
+})</code></pre><h3>Config</h3><p>Configuration can be set using <code>Rest.Config.set()</code>:</p>
+<pre class="prettyprint source lang-js"><code>Rest.Config.set({baseUrl: 'https://restjs.js.org'})</code></pre><h5><code>baseUrl</code>: String</h5><p>The base URL for requests. I.e, if the <code>baseUrl</code> is set to <code>http://google.com</code>, all requests will be prefixed with <code>http://google.com</code></p>
+<h5><code>defaultParams</code>: Object</h5><p>The default parameters for requests. Can be overriden by specific requests</p>
+<h5><code>fields</code>: Object</h5><p>Custom fields that RestJS uses to pick up on properties needed.</p>
+<h6>&nbsp;&nbsp;&nbsp;&nbsp; <code>id</code>: String</h6><p>&nbsp;&nbsp;&nbsp;&nbsp; The property that RestJS should use as the id. This will be used for subsequent requests, such as DELETE, PUT or PATCH requests: <code>&lt;baseUrl&gt;/&lt;resource&gt;/&lt;id field&gt;</code></p>
+<h5><code>headers</code>: String[String[]]</h5><p>An array of headers to send for the request. The headers must be an array, with each element containing an array, with the first element being the header name and the second the header value.</p>
+<pre class="prettyprint source lang-js"><code>
+Rest.Config.set(
+  {
+    headers: [
+      ['X-Requested-With': 'RestJ']
+    ]
+  }
+)</code></pre><p>See <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader"><code>XMLHttpRequest.setRequestHeader()</code></a></p>
+<h5><code>responseType</code>: String</h5><p>The type of the response. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType"><code>XMLHttpRequest.responseType</code></a></p>
+<h5><code>timeout</code>: Integer</h5><p>The timeout setting for XHR requests. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout"><code>XMLHttpRequest.timeout</code></a></p>
+<h5><code>withCredentials</code>: Boolean</h5><p>whether to send CORS credentials with the request or not. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials"><code>XMLHttpRequest.withCredentials</code></a></p>
+<h2>Development</h2><p>Run <code>npm install</code> to install all the build tools. <code>src/rest.js</code> contains all the source code. Run <code>npm run build</code> to run <a href="https://babeljs.io/">Babel</a> to compile for the browser.</p>
+<h3>Tests</h3><p>RestJS uses <a href="https://karma-runner.github.io">Karma</a>, <a href="https://mochajs.org/">Mocha</a>, and <a href="http://chaijs.com/">Chai</a> for running tests.
+Run local tests with <code>npm run unit</code>. Running <code>npm run test</code> will first lint the files, then run all the tests on Sauce Labs using <a href="https://github.com/karma-runner/karma-sauce-launcher">karma-sauce-launcher</a>.</p>
+<h3>Docs</h3><p>All docs are written using the <a href="http://usejsdoc.org/">JSDoc</a> syntax.</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Element.html">Element</a></li><li><a href="Factory.html">Factory</a></li><li><a href="Rest.html">Rest</a></li><li><a href="Rest_Config.html">Config</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Sep 23 2016 16:31:52 GMT-0700 (PDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
