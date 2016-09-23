@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## Added
+Fixes to the build script:
+ - Already minified Babel polyfill is being added to the already minified dist file, rather than adding the polyfill and minifying both
+ - Now correctly clears the dist folder
+
 ## 1.0.2 - 2016-08-31
 Updated to possibly work with Node. This will _not_ work without an `XMLHttpRequest` polyfill for Node
 
