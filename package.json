@@ -12,7 +12,7 @@
     "docs": "jsdoc --configure docs/conf.json --destination docs",
     "release": "scripts/release.sh"
   },
-  "author": "Matthew Davies <matthew@daviesgeek.com> (http://daviesgeek.com)",
+  "author": "Matthew Davies <matthew@daviesgeek.com> (https://daviesgeek.com)",
   "license": "MIT",
   "eslintConfig": {
     "env": {
