@@ -274,8 +274,10 @@ describe('RestJS', function () {
         request.respond(199)
       })
       User.getList().then(function() {
-        console.log('should never run')
-      }).catch(done)
+        throw new Error('Promise was unexpectedly fulfilled')
+      }).catch(function () {
+        done()
+      })
     })
 
     it('should reject a 300 status code', function(done) {
@@ -283,8 +285,10 @@ describe('RestJS', function () {
         request.respond(300)
       })
       User.getList().then(function() {
-        console.log('should never run')
-      }).catch(done)
+        throw new Error('Promise was unexpectedly fulfilled')
+      }).catch(function () {
+        done()
+      })
     })
 
     it('should reject a 500 status code', function(done) {
@@ -292,8 +296,10 @@ describe('RestJS', function () {
         request.respond(500)
       })
       User.getList().then(function() {
-        console.log('should never run')
-      }).catch(done)
+        throw new Error('Promise was unexpectedly fulfilled')
+      }).catch(function () {
+        done()
+      })
     })
 
     it('should resolve a 200 status code', function(done) {
@@ -301,7 +307,7 @@ describe('RestJS', function () {
         request.respond(200)
       })
       User.getList().catch(function() {
-        console.log('should never run')
+        throw new Error('Promise was unexpectedly rejected')
       }).then(done)
     })
 
@@ -310,7 +316,7 @@ describe('RestJS', function () {
         request.respond(201)
       })
       User.getList().catch(function() {
-        console.log('should never run')
+        throw new Error('Promise was unexpectedly rejected')
       }).then(done)
     })
   })
