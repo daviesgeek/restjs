@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# RestJS
+# RestJS!
 
 [![CircleCI](https://circleci.com/gh/daviesgeek/restjs/tree/master.svg?style=svg)](https://circleci.com/gh/daviesgeek/restjs/tree/master)
 
