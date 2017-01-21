@@ -1,6 +1,6 @@
 {
   "name": "restjs",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "An 'ORM' style library for consuming RESTful APIs on the frontend",
   "main": "dist/rest.node.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "local-test": "npm run lint && karma start test/config.local.js --single-run=true",
     "lint": "eslint src/*",
     "unit": "karma start test/config.js --browsers=PhantomJS",
-    "docs": "jsdoc --configure docs/conf.json --destination docs",
+    "docs": "jsdoc --configure docs/conf.json --destination docs --private",
     "release": "scripts/release.sh"
   },
   "author": "Matthew Davies <matthew@daviesgeek.com> (https://daviesgeek.com)",

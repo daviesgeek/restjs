@@ -9,27 +9,37 @@ var Rest = {}
 /**
  * The default configuration options
  *
- * `headers`: the default headers for requests, defaults to an empty array, expected type: `[String, String]` <br />
- * `responseType`: the response type for the request. See [the docs for `XMLHttpRequest.responseType`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType) <br />
- * `fields`: the special fields used to determine url (and later, header) information <br />
- * `baseUrl`: the base URL for resources <br />
+ * @property {String} baseUrl The base URL for requests. I.e, if the `baseUrl` is set to `http://google.com`, all requests will be prefixed with `http://google.com`
+ * @property {Object} defaultParams The default parameters for requests. Can be overriden by specific requests
+ * @property {Object} fields The special fields used to determine url (and later, header) information
+ * @property {Object} fields.id The property that RestJS should use as the id. This will be used for subsequent requests, such as DELETE, PUT or PATCH requests: `<baseUrl>/<resource>/<id field>`
+ * @property {Array.<Array.<String>>} headers The default headers for requests, defaults to an empty array, expected elements: `[String, String]`
+ * @property {String} responseType The response type for the request. See [the docs for `XMLHttpRequest.responseType`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType)
+ * @property {number} [timeout] The XHR timeout. See [the docs for `XMLHttpRequest.timeout`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout)
+ * @property {boolean} [withCredentials] Whether to send CORS credentials with the request or not. See [the docs for `XMLHttpRequest.withCredentials`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials)
  *
  *  @name Rest#Config
  *  @class
  */
 Rest.Config = {
-  headers: [],
-  responseType: "json",
+  // timeout: undefined
+  // withCredentials: undefined
+
+  baseUrl: "",
+  defaultParams: {},
   fields: {
     id: "id"
   },
-  baseUrl: ""
+  headers: [],
+  responseType: "json",
 }
 
 /**
  * Sets a given config to the configuration object
  * @param {Object} config The specified config
  * @memberOf  Rest#Config
+ * @example
+ * Rest.Config.set({baseUrl: 'https://restjs.js.org'})
  */
 Rest.Config.set = function(config) {
   Object.assign(Rest.Config, config)
@@ -49,12 +59,13 @@ Rest._responseInterceptors = []
  *
  * @example
  *
- * Rest.addResponseInterceptor(function(data, responseType, route, responseURL, reject)) {
+ * Rest.addResponseInterceptor(function(data, responseType, route, responseURL, reject, xhr)) {
  *     data:         The response data
  *     responseType: The response type. See {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType |the docs}
  *     route:        The route used for {@link _makeRequest}
  *     responseURL:  See {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseURL |the docs for `XMLHttpRequest.responseURL`}
  *     reject:       The `reject` method from the Promise for the request
+ *     xhr:          The XHR object used to make the request
  * })
  *
  * Expected format:
@@ -93,6 +104,37 @@ Rest.addResponseExtractor = function(func) {
 }
 
 /**
+ * Holds response extractors
+ * @see Rest.addRequestInterceptor
+ *
+ * @type {Array}
+ * @private
+ */
+Rest._requestInterceptors = []
+
+
+/**
+ * Adds a response interceptor, which is run before a request is sent
+ *
+ * @example
+ *
+ * Rest.addRequestInterceptor(function(requestConfig, xhr, reject)) {
+ *   requestConfig.route  // the URL for the request, minus the
+ *   requestConfig.params // the parameters for the request
+ *   requestConfig.body   // the request body
+ * })
+ *
+ * Expected format:
+ *
+ * function(requestConfig, xhr, reject)
+ *
+ * @param {Function} func The interceptor (see the example)
+ */
+Rest.addRequestInterceptor = function (func) {
+  Rest._requestInterceptors.push(func)
+}
+
+/**
  * The factory creator method for RestJS
  * @param  {String} route              The route
  * @param  {(Object|Function)} factoryTransformer A transformer that is either added to the factory (if it's an object) or run on the factory (if it's a function)
@@ -100,7 +142,7 @@ Rest.addResponseExtractor = function(func) {
  * @param  {Object} customConfig       A custom configuration object @see Rest.Config
  * @return {Factory}                   A newly created Factory
  */
-Rest.factory = function(route, factoryTransformer, elementTransformer, customConfig=null) {
+Rest.factory = function(route, factoryTransformer, elementTransformer, collectionTransformer, customConfig=null) {
 
   // Create the Factory, passing the necessary property descriptors
   let factory = Object.create(Factory, {
@@ -139,6 +181,18 @@ Rest.factory = function(route, factoryTransformer, elementTransformer, customCon
       configurable: false,
       enumerable: false,
       value: elementTransformer
+    },
+
+    /**
+     * The transformer to be run on a collection (array)
+     * @type {Function}
+     * @memberOf Factory
+     * @instance
+     */
+    collectionTransformer: {
+      configurable: false,
+      enumerable: false,
+      value: collectionTransformer
     }
   })
 
@@ -158,6 +212,8 @@ Rest.factory = function(route, factoryTransformer, elementTransformer, customCon
 
 /**
  * Makes a request with the necessary config
+ *
+ * @private
  * @param  {Object}     config
  * @param  {String}     verb       The HTTP verb: GET, POST, PATCH, PUT
  * @param  {String}     route
@@ -187,7 +243,7 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
 
         // Loop over the interceptors and extractors, running each of them on the response
         Rest._responseInterceptors.forEach(function (interceptor) {
-          interceptor(data, xhr.responseType, route, xhr.responseURL, reject)
+          interceptor(data, xhr.responseType, route, xhr.responseURL, reject, xhr)
         })
         Rest._responseExtractors.forEach(function(extractor) {
           data = extractor(data)
@@ -195,7 +251,7 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
 
         // If the status isn't in between 200 or 299
         if (xhr.status < 200 || xhr.status > 299)
-          return reject()
+          return reject({data, xhr})
 
         // Make sure there's data before restifying it, otherwise just resolve with null
         if(data && Object.keys(data).length)
@@ -206,8 +262,16 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
 
     }
 
+    params = Object.assign({}, Rest.Config.defaultParams, params)
+
+    let requestConfig = {route, params, body}
+
+    Rest._requestInterceptors.forEach(function (interceptor) {
+      requestConfig = interceptor(requestConfig, xhr)
+    })
+
     // Open the XHR request. See {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/open |the docs}
-    xhr.open(verb, Rest._createUrl(route, params), true)
+    xhr.open(verb, Rest._createUrl(requestConfig.route, requestConfig.params), true)
 
     // @todo: switch based on type
     xhr.setRequestHeader("Content-type", "application/json")
@@ -220,10 +284,12 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
     // If the body exists and the response type is JSON, stringify it first
     // Otherwise, just send it as is,
     // Else, just send it without a body
-    if (body && xhr.responseType == "json")
-      return xhr.send(JSON.stringify(body))
+    if (requestConfig.body && xhr.responseType == "json")
+      return xhr.send(JSON.stringify(requestConfig.body))
+    else if(requestConfig.body)
+      return xhr.send(requestConfig.body)
     else
-      return xhr.send(body)
+      return xhr.send()
   })
 
   return promise
@@ -232,6 +298,7 @@ Rest._makeRequest = function(config, verb, route, params={}, factory, body) {
 /**
  * Create a url based off a route and a parameter object
  *
+ * @private
  * @todo Fix the config object; pass it in instead of referring to it directly
  * @param  {String} route  The route for the request, from when the factory was created
  * @param  {Object=} params={} The URL parameters for the request
@@ -259,6 +326,8 @@ Rest._createUrl = function(route, params={}) {
 
 /**
  * "Restifies" an element: add the default Rest methods to the prototype, and run it through the transformer
+ *
+ * @private
  * @param  {Object} response The response object from [`xhr.response`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response)
  * @param  {Factory} factory The factory object that created the request
  * @param  {Object} config   The configuration for the element
@@ -269,11 +338,19 @@ Rest._restify = function(response, factory, config) {
   // If the passed-in response an array
   if (Array.isArray(response)) {
 
+    if(typeof factory.collectionTransformer == "function")
+      factory.collectionTransformer(response)
+
     // Loop over the array, restify each of the elements and return the new array
-    return response.reduce(function(array, element) {
+    let restifiedResponse = response.reduce(function(array, element) {
       array.push(Rest._restify(element, factory, config))
       return array
     }, [])
+
+    if (typeof factory.collectionTransformer == "object")
+      Object.assign(restifiedResponse, factory.collectionTransformer)
+
+    return restifiedResponse
   }
 
   // If it's not an array, call the create method, passing in the response, and set `fromServer` to true (the last parameter)
@@ -373,6 +450,25 @@ Factory.get = function(id, params={}) {
   return Rest._makeRequest(this.config, "GET", this.route + `/${id}`, params, this, null)
 }
 
+/**
+ * Make a post request
+ * @param  {Object=} params={} The URL parameters for the request
+ * @param  {String=} route=    A custom route for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.post = function(body={}, params={}) {
+  return Rest._makeRequest(this.config, "POST", this.route, params, this, body)
+}
+
+/**
+ * Make a post request
+ * @param  {Object=} params={} The URL parameters for the request
+ * @param  {String=} route=    A custom route for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.customPOST = function(route="", body={}, params={}) {
+  return Rest._makeRequest(this.config, "POST", this.route + `/${route}`, params, this, body)
+}
 
 /**
  * The base element class
@@ -474,13 +570,13 @@ Element.put = function(params) {
  *  The first argument is the body that should be sent in the request. The second…well…you can guess: it's our old friend, the parameters object! :)<br />
  * `(Object, [Object])`
  *
+ * @private
  * @param  {Array} args      The arguments array from the function call
  * @param  {Element} element The Element in question
  * @return {Object} `{body: Object, params: Object}`
  * @example let {body, params} = Rest._findBodyAndParams(args, element)
  *
  * @memberOf Rest
- * @private
  */
 Rest._findBodyAndParams = function(args, element) {
 

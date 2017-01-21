@@ -12,21 +12,28 @@ var Rest = {};
 /**
  * The default configuration options
  *
+ * `baseUrl`: the base URL for resources <br />
+ * `defaultParams`: the default parameters for requests <br />
+ * `fields`: the special fields used to determine url (and later, header) information <br />
  * `headers`: the default headers for requests, defaults to an empty array, expected type: `[String, String]` <br />
  * `responseType`: the response type for the request. See [the docs for `XMLHttpRequest.responseType`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType) <br />
- * `fields`: the special fields used to determine url (and later, header) information <br />
- * `baseUrl`: the base URL for resources <br />
+ * `timeout`: the XHR timeout. See [the docs for `XMLHttpRequest.timeout`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout) <br />
+ * `withCredentials`: whether to send CORS credentials with the request or not. See [the docs for `XMLHttpRequest.withCredei`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredei) <br />
  *
  *  @name Rest#Config
  *  @class
  */
 Rest.Config = {
-  headers: [],
-  responseType: "json",
+  // timeout: undefined
+  // withCredentials: undefined
+
+  baseUrl: "",
+  defaultParams: {},
   fields: {
     id: "id"
   },
-  baseUrl: ""
+  headers: [],
+  responseType: "json"
 };
 
 /**
@@ -52,12 +59,13 @@ Rest._responseInterceptors = [];
  *
  * @example
  *
- * Rest.addResponseInterceptor(function(data, responseType, route, responseURL, reject)) {
+ * Rest.addResponseInterceptor(function(data, responseType, route, responseURL, reject, xhr)) {
  *     data:         The response data
  *     responseType: The response type. See {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType |the docs}
  *     route:        The route used for {@link _makeRequest}
  *     responseURL:  See {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseURL |the docs for `XMLHttpRequest.responseURL`}
  *     reject:       The `reject` method from the Promise for the request
+ *     xhr:          The XHR object used to make the request
  * })
  *
  * Expected format:
@@ -96,6 +104,36 @@ Rest.addResponseExtractor = function (func) {
 };
 
 /**
+ * Holds response extractors
+ * @see Rest.addRequestInterceptor
+ *
+ * @type {Array}
+ * @private
+ */
+Rest._requestInterceptors = [];
+
+/**
+ * Adds a response interceptor, which is run before a request is sent
+ *
+ * @example
+ *
+ * Rest.addRequestInterceptor(function(requestConfig, xhr, reject)) {
+ *   requestConfig.route  // the URL for the request, minus the
+ *   requestConfig.params // the parameters for the request
+ *   requestConfig.body   // the request body
+ * })
+ *
+ * Expected format:
+ *
+ * function(requestConfig, xhr, reject)
+ *
+ * @param {Function} func The interceptor (see the example)
+ */
+Rest.addRequestInterceptor = function (func) {
+  Rest._requestInterceptors.push(func);
+};
+
+/**
  * The factory creator method for RestJS
  * @param  {String} route              The route
  * @param  {(Object|Function)} factoryTransformer A transformer that is either added to the factory (if it's an object) or run on the factory (if it's a function)
@@ -103,8 +141,8 @@ Rest.addResponseExtractor = function (func) {
  * @param  {Object} customConfig       A custom configuration object @see Rest.Config
  * @return {Factory}                   A newly created Factory
  */
-Rest.factory = function (route, factoryTransformer, elementTransformer) {
-  var customConfig = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+Rest.factory = function (route, factoryTransformer, elementTransformer, collectionTransformer) {
+  var customConfig = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
 
 
   // Create the Factory, passing the necessary property descriptors
@@ -144,6 +182,18 @@ Rest.factory = function (route, factoryTransformer, elementTransformer) {
       configurable: false,
       enumerable: false,
       value: elementTransformer
+    },
+
+    /**
+     * The transformer to be run on a collection (array)
+     * @type {Function}
+     * @memberOf Factory
+     * @instance
+     */
+    collectionTransformer: {
+      configurable: false,
+      enumerable: false,
+      value: collectionTransformer
     }
   });
 
@@ -194,22 +244,30 @@ Rest._makeRequest = function (config, verb, route) {
 
         // Loop over the interceptors and extractors, running each of them on the response
         Rest._responseInterceptors.forEach(function (interceptor) {
-          interceptor(data, xhr.responseType, route, xhr.responseURL, reject);
+          interceptor(data, xhr.responseType, route, xhr.responseURL, reject, xhr);
         });
         Rest._responseExtractors.forEach(function (extractor) {
           data = extractor(data);
         });
 
         // If the status isn't in between 200 or 299
-        if (xhr.status < 200 || xhr.status > 299) return reject();
+        if (xhr.status < 200 || xhr.status > 299) return reject({ data: data, xhr: xhr });
 
         // Make sure there's data before restifying it, otherwise just resolve with null
         if (data && Object.keys(data).length) resolve(Rest._restify(data, factory, config));else resolve(null);
       }
     };
 
+    params = Object.assign({}, Rest.Config.defaultParams, params);
+
+    var requestConfig = { route: route, params: params, body: body };
+
+    Rest._requestInterceptors.forEach(function (interceptor) {
+      requestConfig = interceptor(requestConfig, xhr);
+    });
+
     // Open the XHR request. See {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/open |the docs}
-    xhr.open(verb, Rest._createUrl(route, params), true);
+    xhr.open(verb, Rest._createUrl(requestConfig.route, requestConfig.params), true);
 
     // @todo: switch based on type
     xhr.setRequestHeader("Content-type", "application/json");
@@ -222,7 +280,7 @@ Rest._makeRequest = function (config, verb, route) {
     // If the body exists and the response type is JSON, stringify it first
     // Otherwise, just send it as is,
     // Else, just send it without a body
-    if (body && xhr.responseType == "json") return xhr.send(JSON.stringify(body));else return xhr.send(body);
+    if (requestConfig.body && xhr.responseType == "json") return xhr.send(JSON.stringify(requestConfig.body));else if (requestConfig.body) return xhr.send(requestConfig.body);else return xhr.send();
   });
 
   return promise;
@@ -270,11 +328,17 @@ Rest._restify = function (response, factory, config) {
   // If the passed-in response an array
   if (Array.isArray(response)) {
 
+    if (typeof factory.collectionTransformer == "function") factory.collectionTransformer(response);
+
     // Loop over the array, restify each of the elements and return the new array
-    return response.reduce(function (array, element) {
+    var restifiedResponse = response.reduce(function (array, element) {
       array.push(Rest._restify(element, factory, config));
       return array;
     }, []);
+
+    if (_typeof(factory.collectionTransformer) == "object") Object.assign(restifiedResponse, factory.collectionTransformer);
+
+    return restifiedResponse;
   }
 
   // If it's not an array, call the create method, passing in the response, and set `fromServer` to true (the last parameter)
@@ -377,6 +441,33 @@ Factory.get = function (id) {
   var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   return Rest._makeRequest(this.config, "GET", this.route + ("/" + id), params, this, null);
+};
+
+/**
+ * Make a post request
+ * @param  {Object=} params={} The URL parameters for the request
+ * @param  {String=} route=    A custom route for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.post = function () {
+  var body = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  return Rest._makeRequest(this.config, "POST", this.route, params, this, body);
+};
+
+/**
+ * Make a post request
+ * @param  {Object=} params={} The URL parameters for the request
+ * @param  {String=} route=    A custom route for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.customPOST = function () {
+  var route = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+  var body = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+  return Rest._makeRequest(this.config, "POST", this.route + ("/" + route), params, this, body);
 };
 
 /**
@@ -510,28 +601,28 @@ Rest._findBodyAndParams = function (args, element) {
 
     // If the first param is an object, the body has been passed in directly
   } else if (_typeof(args[0]) == "object") {
-      body = args[0];
-      params = args[1] || {};
+    body = args[0];
+    params = args[1] || {};
 
-      // Else if the first argument is a string, the properties have been passed in as args
-    } else if (typeof args[0] == "string") {
+    // Else if the first argument is a string, the properties have been passed in as args
+  } else if (typeof args[0] == "string") {
 
-        // Loop through the args
-        for (var i = 0; i < args.length; i++) {
-          var arg = args[i];
+    // Loop through the args
+    for (var i = 0; i < args.length; i++) {
+      var arg = args[i];
 
-          // If the arg is a string, it's a property of the element
-          if (typeof arg == "string") {
-            body[arg] = element[arg];
+      // If the arg is a string, it's a property of the element
+      if (typeof arg == "string") {
+        body[arg] = element[arg];
 
-            // Else if it's an object and the last argument, it's the parameters object…so set it
-          } else if ((typeof arg === "undefined" ? "undefined" : _typeof(arg)) == "object" && i == args.length - 1) {
-              params = arg;
-            }
-        }
+        // Else if it's an object and the last argument, it's the parameters object…so set it
+      } else if ((typeof arg === "undefined" ? "undefined" : _typeof(arg)) == "object" && i == args.length - 1) {
+        params = arg;
       }
+    }
+  }
 
   // Return it as a "tuple" of sorts
   return { body: body, params: params };
 };
-Rest.VERSION = "1.0.1"
+Rest.VERSION = "1.1.0"
