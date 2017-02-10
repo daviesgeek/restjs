@@ -2,7 +2,19 @@
 
 ## Unreleased
 
-## Added
+## 1.1.0 - 2017-02-10
+
+***BREAKING***: Added collection transformer as option for `Rest.factory`
+This change will break backwards compatibility for anything using `Rest.factory` as the method signature has changed.
+
+### Added
+Added new default options to the config
+ - Default parameters
+Added `xhr` parameter to response interceptors
+Added request interceptors
+Added `post` and `customPOST` on `Rest.factory`
+
+### Fixed
 Fixes to the build script:
  - Already minified Babel polyfill is being added to the already minified dist file, rather than adding the polyfill and minifying both
  - Now correctly clears the dist folder
