@@ -1,1 +1,2 @@
 name: "RestJS"
+exclude: 'docs/latest/index.template.md'
