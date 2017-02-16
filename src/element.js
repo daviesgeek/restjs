@@ -7,7 +7,7 @@ let Element = {}
 
 /**
  * Make a GET request
- * @param  {Object} params The URL parameters for the request
+ * @param  {string|object} routeOrParams If it's a string, it's the route for the request, otherwise it's the params for the request
  * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
  *
  * @example
@@ -15,6 +15,11 @@ let Element = {}
  * element.get({with: 'params'}).then(function(data) {
  *   // data is here, restified for further use
  * })
+ *
+ * element.get('route', {with: 'params'}).then(function(data) {
+ *   // data is here, restified for further use
+ * })
+ *
  *
  * @name Element#get
  * @kind function
