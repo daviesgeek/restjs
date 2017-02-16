@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+Fixed the elementTransformer not working correctly when passed a function
+
 ### Added
 Added the option for `Element.get()` to pass a route and/or params
 

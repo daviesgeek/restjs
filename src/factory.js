@@ -67,7 +67,7 @@ Factory.create = function(element, fromServer=false) {
   Object.assign(instance, element, prototype)
 
   if(typeof this.elementTransformer == "function")
-    instance = this.elementTransformer(element)
+    instance = this.elementTransformer(instance)
 
   return instance
 }

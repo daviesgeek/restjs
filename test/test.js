@@ -21,6 +21,10 @@ describe('RestJS', function () {
     server.restore()
   })
 
+  /**
+   * Factory tests
+   */
+
   it('should create a factory', function () {
     expect(User).to.have.property('getList')
     expect(User).to.have.property('get')
@@ -62,6 +66,10 @@ describe('RestJS', function () {
       done()
     })
   })
+
+  /**
+   * Element tests
+   */
 
   it('should make a post request', function (done) {
     server.respondWith(function (request) {
@@ -254,6 +262,8 @@ describe('RestJS', function () {
       })
 
       var user = ModelFactory.create({id: 1, name: "Bob", role: "standard", permissions: 'rwd'})
+
+      shouldBeRestified(user, 'users', false)
 
       expect(user).to.have.property('types')
       expect(user).to.have.property('setRole')
