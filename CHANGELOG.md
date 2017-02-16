@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.1.0 - 2017-02-15
+
 ### Fixed
 Fixed the elementTransformer not working correctly when passed a function
 

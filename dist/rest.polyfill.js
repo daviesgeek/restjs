@@ -8,14 +8,10 @@ _dereq_(296);
 
 _dereq_(2);
 
-/* eslint max-len: 0 */
-
 if (global._babelPolyfill) {
   throw new Error("only one instance of babel-polyfill is allowed");
 }
 global._babelPolyfill = true;
-
-// Should be removed in the next major release:
 
 var DEFINE_PROPERTY = "defineProperty";
 function define(O, key, value) {
@@ -6102,7 +6098,8 @@ module.exports = _dereq_(23);
 !(function(global) {
   "use strict";
 
-  var hasOwn = Object.prototype.hasOwnProperty;
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
   var undefined; // More compressible than void 0.
   var $Symbol = typeof Symbol === "function" ? Symbol : {};
   var iteratorSymbol = $Symbol.iterator || "@@iterator";
@@ -6126,8 +6123,9 @@ module.exports = _dereq_(23);
   runtime = global.regeneratorRuntime = inModule ? module.exports : {};
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
-    // If outerFn provided, then outerFn.prototype instanceof Generator.
-    var generator = Object.create((outerFn || Generator).prototype);
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
     var context = new Context(tryLocsList || []);
 
     // The ._invoke method unifies the implementations of the .next,
@@ -6173,10 +6171,29 @@ module.exports = _dereq_(23);
   function GeneratorFunction() {}
   function GeneratorFunctionPrototype() {}
 
-  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
   GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
   GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
 
   // Helper for defining the .next, .throw, and .return methods of the
   // Iterator interface in terms of a single ._invoke method.
@@ -6213,16 +6230,11 @@ module.exports = _dereq_(23);
 
   // Within the body of any async function, `await x` is transformed to
   // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
-  // `value instanceof AwaitArgument` to determine if the yielded value is
-  // meant to be awaited. Some may consider the name of this method too
-  // cutesy, but they are curmudgeons.
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
   runtime.awrap = function(arg) {
-    return new AwaitArgument(arg);
+    return { __await: arg };
   };
-
-  function AwaitArgument(arg) {
-    this.arg = arg;
-  }
 
   function AsyncIterator(generator) {
     function invoke(method, arg, resolve, reject) {
@@ -6232,8 +6244,10 @@ module.exports = _dereq_(23);
       } else {
         var result = record.arg;
         var value = result.value;
-        if (value instanceof AwaitArgument) {
-          return Promise.resolve(value.arg).then(function(value) {
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
             invoke("next", value, resolve, reject);
           }, function(err) {
             invoke("throw", err, resolve, reject);
@@ -6302,6 +6316,7 @@ module.exports = _dereq_(23);
   }
 
   defineIteratorMethods(AsyncIterator.prototype);
+  runtime.AsyncIterator = AsyncIterator;
 
   // Note that simple async functions are implemented on top of
   // AsyncIterator objects; they just return a Promise for the value of
@@ -6461,10 +6476,6 @@ module.exports = _dereq_(23);
   // Define Generator.prototype.{next,throw,return} in terms of the
   // unified ._invoke helper method.
   defineIteratorMethods(Gp);
-
-  Gp[iteratorSymbol] = function() {
-    return this;
-  };
 
   Gp[toStringTagSymbol] = "Generator";
 
@@ -6762,25 +6773,251 @@ module.exports = _dereq_(23);
 },{}]},{},[1]);
 "use strict";
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/**
+ * The base element class
+ *
+ * @class Element
+ */
+var Element = {};
+
+/**
+ * Make a GET request
+ * @param  {string|object} routeOrParams If it's a string, it's the route for the request, otherwise it's the params for the request
+ * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
+ *
+ * @example
+ *
+ * element.get({with: 'params'}).then(function(data) {
+ *   // data is here, restified for further use
+ * })
+ *
+ * element.get('route', {with: 'params'}).then(function(data) {
+ *   // data is here, restified for further use
+ * })
+ *
+ *
+ * @name Element#get
+ * @kind function
+ */
+Element.get = function () {
+  var params = _typeof(arguments[0]) === "object" ? arguments[0] : arguments[1] || {};
+  var route = typeof arguments[0] === "string" ? arguments[0] : null;
+
+  var requestRoute = this.route + ("/" + this[this.config.fields.id]);
+  if (route) {
+    requestRoute += "/" + route;
+  }
+
+  return Rest._makeRequest(this.config, "GET", requestRoute, params, this.factory, null);
+};
+
+/**
+ * Make a POST request, POSTing the serialized element
+ * @param  {Object} params The URL parameters for the request
+ * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
+ *
+ * @example
+ *
+ * element.post({with: 'params'}).then(function(data) {
+ *   // data is here, restified for further use
+ * })
+ *
+ * @name Element#post
+ * @kind function
+ */
+Element.post = function (params) {
+  return Rest._makeRequest(this.config, "POST", this.route + (this.fromServer ? "/" + this[this.config.fields.id] : ""), params, this.factory, this);
+};
+
+/**
+ * Make a PATCH request, PATCHing the body.<br/>
+ * For more information on the format of the request, look at {@link Rest._findBodyAndParams}
+ * @param  {Object} body   The body of the request
+ * @param  {Object} params The URL parameters for the request
+ * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
+ *
+ * @example
+ *
+ * element.patch({name: "Matt Smith"}, {with: 'children'})
+ * element.patch(['name'])
+ * element.patch(['name'], {with: 'children'})
+ * element.patch('name', 'season', {with: 'children'})
+ * element.patch('name', 'season')
+ *
+ * @see Rest._findBodyAndParams
+ * @name Element#patch
+ * @kind function
+ */
+Element.patch = function () {
+  var _Rest$_findBodyAndPar = Rest._findBodyAndParams(arguments, this),
+      body = _Rest$_findBodyAndPar.body,
+      params = _Rest$_findBodyAndPar.params;
+
+  return Rest._makeRequest(this.config, "PATCH", this.route + ("/" + this[this.config.fields.id]), params, this.factory, body);
+};
+
+/**
+ * Make a PUT request, PUTing the serialized element
+ * @param  {Object} params The URL parameters for the request
+ * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
+ *
+ * @example
+ *
+ * element.put({with: 'params'}).then(function(data) {
+ *   // data is here, restified for further use
+ * })
+ *
+ * @name Element#put
+ * @kind function
+ */
+Element.put = function (params) {
+  return Rest._makeRequest(this.config, "PUT", this.route + ("/" + this[this.config.fields.id]), params, this.factory, this);
+};
+/**
+ * The base factory class
+ *
+ * @class Factory
+ */
+var Factory = function Factory() {};
+
+/**
+ * Creates an element
+ * @param  {object}  element     The element to create
+ * @param  {Boolean=} [fromServer=false] Whether this element is from the server or not
+ * @return {Element}
+ */
+Factory.create = function (element) {
+  var fromServer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  var instance = Object.create(Element, {
+
+    /**
+     * The route
+     * @type {String}
+     * @memberof Element
+     * @instance
+     */
+    route: {
+      configurable: false,
+      enumerable: false,
+      value: this.route
+    },
+
+    /**
+     * Whether the element is from the server or not
+     * @type {Boolean}
+     * @memberOf Element
+     * @instance
+     */
+    fromServer: {
+      configurable: true,
+      enumerable: false,
+      value: fromServer
+    },
+
+    /**
+     * The config object for the element
+     * @type {Object}
+     * @memberOf Element
+     * @instance
+     */
+    config: {
+      configurable: false,
+      enumerable: false,
+      value: this.config
+    },
+
+    /**
+     * The Factory that created the element
+     * @type {Factory}
+     * @memberOf Element
+     * @instance
+     */
+    factory: {
+      configurable: false,
+      enumerable: false,
+      value: this
+    }
+  });
+
+  var prototype = _typeof(this.elementTransformer) == "object" ? this.elementTransformer : {};
+  Object.assign(instance, element, prototype);
+
+  if (typeof this.elementTransformer == "function") instance = this.elementTransformer(instance);
+
+  return instance;
+};
+
+/**
+ * Makes a request to the server for an array
+ * @param  {Object=} params={} The URL parameters for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.getList = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  return Rest._makeRequest(this.config, "GET", this.route, params, this, null);
+};
+
+/**
+ * Make a get request for a given id
+ * @param  {Integer} id    The id of the element to fetch from the server
+ * @param  {Object=} params={} The URL parameters for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.get = function (id) {
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return Rest._makeRequest(this.config, "GET", this.route + ("/" + id), params, this, null);
+};
+
+/**
+ * Make a post request
+ * @param  {Object=} params={} The URL parameters for the request
+ * @param  {String=} route=    A custom route for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.post = function () {
+  var body = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return Rest._makeRequest(this.config, "POST", this.route, params, this, body);
+};
+
+/**
+ * Make a post request
+ * @param  {Object=} params={} The URL parameters for the request
+ * @param  {String=} route=    A custom route for the request
+ * @return {Promise<xhr.response>} The request promise
+ */
+Factory.customPOST = function () {
+  var route = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+  var body = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  return Rest._makeRequest(this.config, "POST", this.route + ("/" + route), params, this, body);
+};
+"use strict";
+
 /**
  * The globally available RestJS library
  * @class Rest
  */
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 var Rest = {};
 
 /**
  * The default configuration options
  *
- * `baseUrl`: the base URL for resources <br />
- * `defaultParams`: the default parameters for requests <br />
- * `fields`: the special fields used to determine url (and later, header) information <br />
- * `headers`: the default headers for requests, defaults to an empty array, expected type: `[String, String]` <br />
- * `responseType`: the response type for the request. See [the docs for `XMLHttpRequest.responseType`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType) <br />
- * `timeout`: the XHR timeout. See [the docs for `XMLHttpRequest.timeout`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout) <br />
- * `withCredentials`: whether to send CORS credentials with the request or not. See [the docs for `XMLHttpRequest.withCredei`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredei) <br />
+ * @property {String} baseUrl The base URL for requests. I.e, if the `baseUrl` is set to `http://google.com`, all requests will be prefixed with `http://google.com`
+ * @property {Object} defaultParams The default parameters for requests. Can be overriden by specific requests
+ * @property {Object} fields The special fields used to determine url (and later, header) information
+ * @property {Object} fields.id The property that RestJS should use as the id. This will be used for subsequent requests, such as DELETE, PUT or PATCH requests: `<baseUrl>/<resource>/<id field>`
+ * @property {Array.<Array.<String>>} headers The default headers for requests, defaults to an empty array, expected elements: `[String, String]`
+ * @property {String} responseType The response type for the request. See [the docs for `XMLHttpRequest.responseType`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType)
+ * @property {number} [timeout] The XHR timeout. See [the docs for `XMLHttpRequest.timeout`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout)
+ * @property {boolean} [withCredentials] Whether to send CORS credentials with the request or not. See [the docs for `XMLHttpRequest.withCredentials`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials)
  *
  *  @name Rest#Config
  *  @class
@@ -6802,6 +7039,8 @@ Rest.Config = {
  * Sets a given config to the configuration object
  * @param {Object} config The specified config
  * @memberOf  Rest#Config
+ * @example
+ * Rest.Config.set({baseUrl: 'https://restjs.js.org'})
  */
 Rest.Config.set = function (config) {
   Object.assign(Rest.Config, config);
@@ -6904,7 +7143,7 @@ Rest.addRequestInterceptor = function (func) {
  * @return {Factory}                   A newly created Factory
  */
 Rest.factory = function (route, factoryTransformer, elementTransformer, collectionTransformer) {
-  var customConfig = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+  var customConfig = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
 
   // Create the Factory, passing the necessary property descriptors
@@ -6974,6 +7213,8 @@ Rest.factory = function (route, factoryTransformer, elementTransformer, collecti
 
 /**
  * Makes a request with the necessary config
+ *
+ * @private
  * @param  {Object}     config
  * @param  {String}     verb       The HTTP verb: GET, POST, PATCH, PUT
  * @param  {String}     route
@@ -6983,7 +7224,7 @@ Rest.factory = function (route, factoryTransformer, elementTransformer, collecti
  * @return {Promise<xhr.response>} A promise that is resolved or rejected based on the request
  */
 Rest._makeRequest = function (config, verb, route) {
-  var params = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+  var params = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var factory = arguments[4];
   var body = arguments[5];
 
@@ -7051,13 +7292,14 @@ Rest._makeRequest = function (config, verb, route) {
 /**
  * Create a url based off a route and a parameter object
  *
+ * @private
  * @todo Fix the config object; pass it in instead of referring to it directly
  * @param  {String} route  The route for the request, from when the factory was created
  * @param  {Object=} params={} The URL parameters for the request
  * @return {String} The created url, complete with the baseURL prepended and the parameters URL-encoded and appended
  */
 Rest._createUrl = function (route) {
-  var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 
   // Fetch the baseUrl from configuration, stripping all trailing slashes
@@ -7080,6 +7322,8 @@ Rest._createUrl = function (route) {
 
 /**
  * "Restifies" an element: add the default Rest methods to the prototype, and run it through the transformer
+ *
+ * @private
  * @param  {Object} response The response object from [`xhr.response`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response)
  * @param  {Factory} factory The factory object that created the request
  * @param  {Object} config   The configuration for the element
@@ -7108,220 +7352,6 @@ Rest._restify = function (response, factory, config) {
 };
 
 /**
- * The base factory class
- *
- * @class Factory
- */
-var Factory = function Factory() {};
-
-/**
- * Creates an element
- * @param  {object}  element     The element to create
- * @param  {Boolean=} [fromServer=false] Whether this element is from the server or not
- * @return {Element}
- */
-Factory.create = function (element) {
-  var fromServer = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-  var instance = Object.create(Element, {
-
-    /**
-     * The route
-     * @type {String}
-     * @memberof Element
-     * @instance
-     */
-    route: {
-      configurable: false,
-      enumerable: false,
-      value: this.route
-    },
-
-    /**
-     * Whether the element is from the server or not
-     * @type {Boolean}
-     * @memberOf Element
-     * @instance
-     */
-    fromServer: {
-      configurable: true,
-      enumerable: false,
-      value: fromServer
-    },
-
-    /**
-     * The config object for the element
-     * @type {Object}
-     * @memberOf Element
-     * @instance
-     */
-    config: {
-      configurable: false,
-      enumerable: false,
-      value: this.config
-    },
-
-    /**
-     * The Factory that created the element
-     * @type {Factory}
-     * @memberOf Element
-     * @instance
-     */
-    factory: {
-      configurable: false,
-      enumerable: false,
-      value: this
-    }
-  });
-
-  var prototype = _typeof(this.elementTransformer) == "object" ? this.elementTransformer : {};
-  Object.assign(instance, element, prototype);
-
-  if (typeof this.elementTransformer == "function") instance = this.elementTransformer(element);
-
-  return instance;
-};
-
-/**
- * Makes a request to the server for an array
- * @param  {Object=} params={} The URL parameters for the request
- * @return {Promise<xhr.response>} The request promise
- */
-Factory.getList = function () {
-  var params = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-  return Rest._makeRequest(this.config, "GET", this.route, params, this, null);
-};
-
-/**
- * Make a get request for a given id
- * @param  {Integer} id    The id of the element to fetch from the server
- * @param  {Object=} params={} The URL parameters for the request
- * @return {Promise<xhr.response>} The request promise
- */
-Factory.get = function (id) {
-  var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-  return Rest._makeRequest(this.config, "GET", this.route + ("/" + id), params, this, null);
-};
-
-/**
- * Make a post request
- * @param  {Object=} params={} The URL parameters for the request
- * @param  {String=} route=    A custom route for the request
- * @return {Promise<xhr.response>} The request promise
- */
-Factory.post = function () {
-  var body = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-  var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-  return Rest._makeRequest(this.config, "POST", this.route, params, this, body);
-};
-
-/**
- * Make a post request
- * @param  {Object=} params={} The URL parameters for the request
- * @param  {String=} route=    A custom route for the request
- * @return {Promise<xhr.response>} The request promise
- */
-Factory.customPOST = function () {
-  var route = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
-  var body = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-  var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-  return Rest._makeRequest(this.config, "POST", this.route + ("/" + route), params, this, body);
-};
-
-/**
- * The base element class
- *
- * @class Element
- */
-var Element = {};
-
-/**
- * Make a GET request
- * @param  {Object} params The URL parameters for the request
- * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
- *
- * @example
- *
- * element.get({with: 'params'}).then(function(data) {
- *   // data is here, restified for further use
- * })
- *
- * @name Element#get
- * @kind function
- */
-Element.get = function (params) {
-  return Rest._makeRequest(this.config, "GET", this.route + ("/" + this[this.config.fields.id]), params, this.factory, null);
-};
-
-/**
- * Make a POST request, POSTing the serialized element
- * @param  {Object} params The URL parameters for the request
- * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
- *
- * @example
- *
- * element.post({with: 'params'}).then(function(data) {
- *   // data is here, restified for further use
- * })
- *
- * @name Element#post
- * @kind function
- */
-Element.post = function (params) {
-  return Rest._makeRequest(this.config, "POST", this.route + (this.fromServer ? "/" + this[this.config.fields.id] : ""), params, this.factory, this);
-};
-
-/**
- * Make a PATCH request, PATCHing the body.<br/>
- * For more information on the format of the request, look at {@link Rest._findBodyAndParams}
- * @param  {Object} body   The body of the request
- * @param  {Object} params The URL parameters for the request
- * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
- *
- * @example
- *
- * element.patch({name: "Matt Smith"}, {with: 'children'})
- * element.patch(['name'])
- * element.patch(['name'], {with: 'children'})
- * element.patch('name', 'season', {with: 'children'})
- * element.patch('name', 'season')
- *
- * @see Rest._findBodyAndParams
- * @name Element#patch
- * @kind function
- */
-Element.patch = function () {
-  var _Rest$_findBodyAndPar = Rest._findBodyAndParams(arguments, this);
-
-  var body = _Rest$_findBodyAndPar.body;
-  var params = _Rest$_findBodyAndPar.params;
-
-  return Rest._makeRequest(this.config, "PATCH", this.route + ("/" + this[this.config.fields.id]), params, this.factory, body);
-};
-
-/**
- * Make a PUT request, PUTing the serialized element
- * @param  {Object} params The URL parameters for the request
- * @return {Promise<Element>} A Promise that is resolved with an {@link Element}
- *
- * @example
- *
- * element.put({with: 'params'}).then(function(data) {
- *   // data is here, restified for further use
- * })
- *
- * @name Element#put
- * @kind function
- */
-Element.put = function (params) {
-  return Rest._makeRequest(this.config, "PUT", this.route + ("/" + this[this.config.fields.id]), params, this.factory, this);
-};
-
-/**
  * Takes the arguments from a function call, figuring out what's what
  *
  * The arguments is an array of parameters in three different formats. The last parameter is always an optional parameters object.<br />
@@ -7336,13 +7366,13 @@ Element.put = function (params) {
  *  The first argument is the body that should be sent in the request. The second…well…you can guess: it's our old friend, the parameters object! :)<br />
  * `(Object, [Object])`
  *
+ * @private
  * @param  {Array} args      The arguments array from the function call
  * @param  {Element} element The Element in question
  * @return {Object} `{body: Object, params: Object}`
  * @example let {body, params} = Rest._findBodyAndParams(args, element)
  *
  * @memberOf Rest
- * @private
  */
 Rest._findBodyAndParams = function (args, element) {
 
