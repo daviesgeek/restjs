@@ -23,6 +23,10 @@
       "impliedStrict": true
     },
     "extends": "eslint:recommended",
+    "globals": {
+      "Rest": true,
+      "Factory": true
+    },
     "rules": {
       "indent": [
         "error",

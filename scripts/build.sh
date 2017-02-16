@@ -15,7 +15,7 @@ mkdir -p $DIST_FOLDER
 
 echo 'Compiling with Babel...               \r\c'
 # First, compile the source using babel
-cat src/rest.js | babel --presets es2015 --out-file "$DIST_FOLDER/rest.js"
+cat src/element.js src/factory.js src/rest.js | babel --presets es2015 --out-file "$DIST_FOLDER/rest.js"
 
 # And add the version number
 echo "Rest.VERSION = \"$VERSION\"" >> "$DIST_FOLDER/rest.js"
