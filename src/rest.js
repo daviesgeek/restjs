@@ -491,8 +491,16 @@ let Element = {}
  * @name Element#get
  * @kind function
  */
-Element.get = function(params) {
-  return Rest._makeRequest(this.config, "GET", this.route + `/${this[this.config.fields.id]}`, params, this.factory, null)
+Element.get = function() {
+  let params = typeof arguments[0] === 'object' ? arguments[0] : arguments[1] || {}
+  let route = typeof arguments[0] === 'string' ? arguments[0] : null
+
+  let requestRoute = this.route + `/${this[this.config.fields.id]}`
+  if(route) {
+    requestRoute += '/' + route
+  }
+
+  return Rest._makeRequest(this.config, "GET", requestRoute, params, this.factory, null)
 }
 
 /**

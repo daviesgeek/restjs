@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+Added the option for `Element.get()` to pass a route and/or params
+
 ## 1.1.0 - 2017-02-10
 
 ***BREAKING***: Added collection transformer as option for `Rest.factory`
