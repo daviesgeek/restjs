@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/daviesgeek/restjs/tree/master.svg?style=svg)](https://circleci.com/gh/daviesgeek/restjs/tree/master)
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/restjs.svg)](https://saucelabs.com/u/restjs)
+[![Sauce Labs Build Status](https://saucelabs.com/buildstatus/restjs)](https://saucelabs.com/beta/builds/a8c23c04d25448f2b4098bb6d2ca75d8)
 
 
 RestJS is somewhat based off [Restangular](https://github.com/mgonto/restangular). It is an “ORM” style library for consuming REST APIs on the frontend.
